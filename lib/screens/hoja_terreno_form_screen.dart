@@ -222,17 +222,16 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
     } else {
       final profile = await ProfileService.getProfile(uid);
       final nombre = profile?.name ?? AuthService.currentUser?.displayName ?? 'Usuario';
-      error = await HojaTerrenoService.crear(uid: uid, nombreUsuario: nombre, datos: datos);
 
-      // Obtenemos el ID recién creado para guardar croquis/secciones/fotos
-      if (error == null) {
-        // Buscamos la hoja recién creada (la más nueva del usuario)
-        final hojas = await HojaTerrenoService.listarTodas().first;
-        final hojaCreada = hojas
-            .where((h) => h.creadaPor == uid)
-            .toList()
-          ..sort((a, b) => b.creadaEn.compareTo(a.creadaEn));
-        if (hojaCreada.isNotEmpty) hojaIdFinal = hojaCreada.first.id;
+      // crear() devuelve (hojaId, codigoHDT) o (null, error)
+      final (nuevoId, codigoOError) = await HojaTerrenoService.crear(
+        uid: uid, nombreUsuario: nombre, datos: datos,
+      );
+
+      if (nuevoId == null) {
+        error = codigoOError; // hubo error
+      } else {
+        hojaIdFinal = nuevoId; // ID real, sin necesidad de buscar
       }
     }
 

@@ -33,7 +33,7 @@ class HomeScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Bienvenido', style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+                          Text('Bienvenido 👋', style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
                           Text(name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
                         ],
                       ),
@@ -98,6 +98,17 @@ class HomeScreen extends StatelessWidget {
                     subtitle: 'Crear, ver y editar hojas de inspección',
                     color: const Color(0xFF6C63FF),
                     onTap: () => Navigator.pushNamed(context, '/hojas'),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // ── Módulo Buscar ────────────────────────────────────────
+                  _ModuleCard(
+                    icon: Icons.manage_search_rounded,
+                    title: 'Buscar Hojas',
+                    subtitle: 'Buscar por código HDT, tanque o cliente',
+                    color: const Color(0xFF00897B),
+                    onTap: () => Navigator.pushNamed(context, '/buscar'),
                   ),
 
                   const SizedBox(height: 10),

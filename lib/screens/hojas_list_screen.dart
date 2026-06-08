@@ -158,6 +158,25 @@ class _HojaCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Código HDT
+              if (hoja.codigoHDT.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C63FF).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      hoja.codigoHDT,
+                      style: const TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.bold,
+                        color: Color(0xFF6C63FF), letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
               // Encabezado: título + badges
               Row(
                 children: [

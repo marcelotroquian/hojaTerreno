@@ -8,7 +8,8 @@ import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/hojas_list_screen.dart';
 import 'screens/hoja_terreno_form_screen.dart';
-
+import 'screens/croquis_screen.dart';
+import 'screens/buscar_hojas_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         '/home':          (context) => const HomeScreen(),
         '/profile':       (context) => const ProfileScreen(),
         '/hojas':         (context) => const HojasListScreen(),
+        '/buscar':        (context) => const BuscarHojasScreen(),
         '/hojas/nueva':   (context) => const HojaTerrenoFormScreen(),
       },
     );
