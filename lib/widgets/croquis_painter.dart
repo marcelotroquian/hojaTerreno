@@ -1,0 +1,111 @@
+// lib/widgets/croquis_painter.dart
+// CustomPainter que dibuja todos los elementos en el canvas
+
+import 'package:flutter/material.dart';
+import '../models/canvas_element.dart';
+
+class CroquisPainter extends CustomPainter {
+  final List<ElementoCanvas> elementos;
+  final ElementoCanvas? elementoEnProgreso; // El que se está dibujando ahora
+
+  CroquisPainter({required this.elementos, this.elementoEnProgreso});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Dibujamos todos los elementos guardados
+    for (final el in elementos) {
+      _dibujarElemento(canvas, el);
+    }
+    // Encima, el elemento que se está dibujando en este momento
+    if (elementoEnProgreso != null) {
+      _dibujarElemento(canvas, elementoEnProgreso!);
+    }
+  }
+
+  void _dibujarElemento(Canvas canvas, ElementoCanvas el) {
+    final paint = Paint()
+      ..color = el.color
+      ..strokeWidth = el.grosor
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
+
+    switch (el.tipo) {
+      case TipoElemento.trazo:
+        _dibujarTrazo(canvas, el, paint);
+        break;
+      case TipoElemento.linea:
+        _dibujarLinea(canvas, el, paint);
+        break;
+      case TipoElemento.rectangulo:
+        _dibujarRectangulo(canvas, el, paint);
+        break;
+      case TipoElemento.circulo:
+        _dibujarCirculo(canvas, el, paint);
+        break;
+      case TipoElemento.texto:
+        _dibujarTexto(canvas, el);
+        break;
+    }
+  }
+
+  // ─── Trazo libre ──────────────────────────────────────────────────────────
+  void _dibujarTrazo(Canvas canvas, ElementoCanvas el, Paint paint) {
+    if (el.puntos.length < 2) return;
+    final path = Path();
+    path.moveTo(el.puntos.first.x, el.puntos.first.y);
+    for (int i = 1; i < el.puntos.length; i++) {
+      // Usamos quadraticBezierTo para trazos suaves
+      if (i < el.puntos.length - 1) {
+        final midX = (el.puntos[i].x + el.puntos[i + 1].x) / 2;
+        final midY = (el.puntos[i].y + el.puntos[i + 1].y) / 2;
+        path.quadraticBezierTo(el.puntos[i].x, el.puntos[i].y, midX, midY);
+      } else {
+        path.lineTo(el.puntos[i].x, el.puntos[i].y);
+      }
+    }
+    canvas.drawPath(path, paint);
+  }
+
+  // ─── Línea recta ──────────────────────────────────────────────────────────
+  void _dibujarLinea(Canvas canvas, ElementoCanvas el, Paint paint) {
+    if (el.inicio == null || el.fin == null) return;
+    canvas.drawLine(el.inicio!.toOffset(), el.fin!.toOffset(), paint);
+  }
+
+  // ─── Rectángulo ───────────────────────────────────────────────────────────
+  void _dibujarRectangulo(Canvas canvas, ElementoCanvas el, Paint paint) {
+    if (el.inicio == null || el.fin == null) return;
+    final rect = Rect.fromPoints(el.inicio!.toOffset(), el.fin!.toOffset());
+    canvas.drawRect(rect, paint);
+  }
+
+  // ─── Círculo/Elipse ───────────────────────────────────────────────────────
+  void _dibujarCirculo(Canvas canvas, ElementoCanvas el, Paint paint) {
+    if (el.inicio == null || el.fin == null) return;
+    final rect = Rect.fromPoints(el.inicio!.toOffset(), el.fin!.toOffset());
+    canvas.drawOval(rect, paint);
+  }
+
+  // ─── Texto ────────────────────────────────────────────────────────────────
+  void _dibujarTexto(Canvas canvas, ElementoCanvas el) {
+    if (el.texto == null || el.inicio == null) return;
+    final tp = TextPainter(
+      text: TextSpan(
+        text: el.texto,
+        style: TextStyle(
+          color: el.color,
+          fontSize: el.fontSize ?? 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    tp.layout();
+    tp.paint(canvas, el.inicio!.toOffset());
+  }
+
+  @override
+  bool shouldRepaint(CroquisPainter old) =>
+      old.elementos != elementos || old.elementoEnProgreso != elementoEnProgreso;
+}

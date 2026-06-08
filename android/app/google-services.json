@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "672952437981",
+    "project_id": "hojas-terreno",
+    "storage_bucket": "hojas-terreno.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672952437981:android:a4805355b1eea8e9a89f34",
+        "android_client_info": {
+          "package_name": "com.example.mi_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtvbNhmoIy-Y5Omf0KQPsp9hlLXEuScCY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

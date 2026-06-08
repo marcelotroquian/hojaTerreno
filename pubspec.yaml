@@ -1,0 +1,41 @@
+name: flutter_auth_app
+description: App de autenticación con Flutter y Firebase Auth
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # ── Firebase ──────────────────────────────────────────
+  firebase_core: ^3.3.0
+  firebase_auth: ^5.1.0
+  cloud_firestore: ^5.4.0
+  firebase_storage: ^12.3.0
+  # ──────────────────────────────────────────────────────
+
+  # ── Utilidades ────────────────────────────────────────
+  image_picker: ^1.1.2
+  cached_network_image: ^3.4.1
+  uuid: ^4.4.0
+  flutter_image_compress: ^2.3.0  # Comprimir imágenes antes de subir
+  path_provider: ^2.1.4           # Directorio temporal para compresión
+  # ──────────────────────────────────────────────────────
+
+  # ── Exportación PDF ───────────────────────────────────
+  pdf: ^3.11.1                    # Generar documentos PDF
+  printing: ^5.13.2               # Vista previa / compartir / imprimir PDF
+  http: ^1.2.2                    # Descargar imágenes de Storage para el PDF
+  # ──────────────────────────────────────────────────────
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
