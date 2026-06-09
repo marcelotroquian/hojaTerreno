@@ -2,6 +2,7 @@
 // Pantalla de inicio de sesión
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../services/auth_service.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/primary_button.dart';
@@ -78,44 +79,31 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 60),
 
-                // Ícono decorativo
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6C63FF).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.lock_rounded,
-                    color: Color(0xFF6C63FF),
-                    size: 32,
+                // Logo de INTECIL (centrado)
+                Center(
+                  child: SvgPicture.asset(
+                    'assets/images/intecil_logo.svg',
+                    width: 220,
+                    fit: BoxFit.contain,
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
 
                 // Título
-                const Text(
-                  'INTECIL app',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF111827),
-                    height: 1.2,
+
+
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    'Ingresa tus credenciales para continuar',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade500,
+                    ),
                   ),
                 ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  'Ingresa tus credenciales para continuar',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-
                 const SizedBox(height: 40),
 
                 // Campo de correo
@@ -169,15 +157,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '¿No tienes cuenta? ',
+                      '',
                       style: TextStyle(color: Colors.grey.shade500),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pushNamed(context, '/register'),
                       child: const Text(
-                        'Regístrate',
+                        'Registro',
                         style: TextStyle(
-                          color: Color(0xFF6C63FF),
+                          color: Color(0xff3b8c47),
                           fontWeight: FontWeight.w600,
                         ),
                       ),

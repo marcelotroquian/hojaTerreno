@@ -32,6 +32,10 @@ dependencies:
   http: ^1.2.2                    # Descargar imágenes de Storage para el PDF
   # ──────────────────────────────────────────────────────
 
+  # ── Recursos gráficos ─────────────────────────────────
+  flutter_svg: ^2.0.10            # Renderizar el logo SVG de INTECIL
+  # ──────────────────────────────────────────────────────
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -39,3 +43,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Carpeta de recursos (logo, imágenes)
+  assets:
+    - assets/images/
