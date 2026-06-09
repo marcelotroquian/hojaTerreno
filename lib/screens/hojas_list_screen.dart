@@ -7,6 +7,8 @@ import '../services/auth_service.dart';
 import '../services/hoja_terreno_service.dart';
 import 'hoja_terreno_form_screen.dart';
 import 'pdf_preview_screen.dart';
+import 'borradores_screen.dart';
+import '../services/borrador_service.dart';
 
 class HojasListScreen extends StatefulWidget {
   const HojasListScreen({super.key});
@@ -50,6 +52,46 @@ class _HojasListScreenState extends State<HojasListScreen> {
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF111827),
         elevation: 0,
+        actions: [
+          // Acceso a borradores locales con contador
+          FutureBuilder<int>(
+            future: BorradorService.contar(),
+            builder: (context, snap) {
+              final n = snap.data ?? 0;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.drafts_rounded),
+                      tooltip: 'Borradores',
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const BorradoresScreen()),
+                        );
+                        setState(() {}); // refrescar contador al volver
+                      },
+                    ),
+                    if (n > 0)
+                      Positioned(
+                        top: 8, right: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                          child: Text('$n',
+                              style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(height: 1, color: Colors.grey.shade100),

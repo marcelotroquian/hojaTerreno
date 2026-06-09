@@ -32,8 +32,9 @@ dependencies:
   http: ^1.2.2                    # Descargar imágenes de Storage para el PDF
   # ──────────────────────────────────────────────────────
 
-  # ── Recursos gráficos ─────────────────────────────────
+  # ── Recursos y almacenamiento local ───────────────────
   flutter_svg: ^2.0.10            # Renderizar el logo SVG de INTECIL
+  shared_preferences: ^2.3.2      # Borradores automáticos en el dispositivo
   # ──────────────────────────────────────────────────────
 
 dev_dependencies:

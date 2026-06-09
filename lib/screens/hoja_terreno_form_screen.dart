@@ -3,12 +3,15 @@
 // El croquis vive en _elementosCroquis (memoria) durante la creación
 // y se guarda en Firestore junto con la hoja al presionar "Guardar".
 
+import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../models/canvas_element.dart';
 import '../models/croquis_datos.dart';
 import '../models/hoja_terreno.dart';
 import '../services/auth_service.dart';
+import '../services/borrador_service.dart';
 import '../services/croquis_service.dart';
 import '../services/hoja_terreno_service.dart';
 import '../services/profile_service.dart';
@@ -26,7 +29,8 @@ import '../widgets/secciones_hoja_widget.dart';
 
 class HojaTerrenoFormScreen extends StatefulWidget {
   final String? hojaId;
-  const HojaTerrenoFormScreen({super.key, this.hojaId});
+  final String? draftId; // si viene, carga un borrador local existente
+  const HojaTerrenoFormScreen({super.key, this.hojaId, this.draftId});
   bool get esEdicion => hojaId != null;
 
   @override
@@ -74,18 +78,155 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
   bool _isSaving  = false;
   HojaTerreno? _hojaOriginal;
 
+  // ── Autoguardado de borrador local ─────────────────────────────────────────
+  late String _draftId;          // id del borrador local de esta sesión
+  Timer? _debounce;              // para no guardar en cada tecla, sino tras una pausa
+  bool _hojaCreada = false;      // si se creó la hoja, ya no autoguardamos borrador
+  bool _huboCambios = false;     // si el inspector tocó algo
+
   @override
   void initState() {
     super.initState();
     if (widget.esEdicion) {
       _cargarHoja();
     } else {
-      _isLoading = false;
+      // draftId: el del borrador que se abre, o uno nuevo basado en timestamp
+      _draftId = widget.draftId ?? 'draft_${DateTime.now().millisecondsSinceEpoch}';
+      if (widget.draftId != null) {
+        _cargarBorrador(widget.draftId!);
+      } else {
+        _isLoading = false;
+      }
+      // Autoguardado al escribir en cualquier campo de texto
+      _engancharAutoguardado();
     }
+  }
+
+  // Engancha un listener a cada controller para autoguardar tras escribir
+  void _engancharAutoguardado() {
+    for (final c in [
+      _tanqueCtrl, _serieCtrl, _certificadoCtrl, _patenteCtrl, _planoCtrl,
+      _clienteCtrl, _capacidadCtrl, _normaCtrl, _protocoloCtrl, _maestranzaCtrl,
+      _materialCtrl, _certAnteriorCtrl, _chassisVinCtrl, _patenteVehiculoCtrl,
+    ]) {
+      c.addListener(_programarAutoguardado);
+    }
+  }
+
+  // Espera 800ms tras el último cambio antes de guardar (debounce)
+  void _programarAutoguardado() {
+    _huboCambios = true;
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 800), _autoguardarBorrador);
+  }
+
+  // Serializa TODO el estado del formulario a un Map (para guardar como borrador)
+  Map<String, dynamic> _serializarEstado() {
+    return {
+      'tanqueNumero': _tanqueCtrl.text,
+      'serieNumero': _serieCtrl.text,
+      'certificadoNumero': _certificadoCtrl.text,
+      'patenteNumero': _patenteCtrl.text,
+      'planoNumero': _planoCtrl.text,
+      'cliente': _clienteCtrl.text,
+      'capacidad': _capacidadCtrl.text,
+      'normaAplicada': _normaCtrl.text,
+      'protocoloNumero': _protocoloCtrl.text,
+      'maestranza': _maestranzaCtrl.text,
+      'material': _materialCtrl.text,
+      'certificadoAnterior': _certAnteriorCtrl.text,
+      'numeroChassisVin': _chassisVinCtrl.text,
+      'patenteVehiculo': _patenteVehiculoCtrl.text,
+      'tipoInspeccion': _tipoInspeccion.name,
+      'tiposTanque': _tiposTanque.map((t) => t.name).toList(),
+      // Secciones
+      'radiografica': _radiografica.toMap(),
+      'fabricacion': _fabricacion.toMap(),
+      'hermeticidad': _hermeticidad.toMap(),
+      'recubrimiento': _recubrimiento.toMap(),
+      'accesorios': _accesorios.toMap(),
+      'placa': _placa.toMap(),
+      // Croquis (elementos + datos)
+      'croquisElementos': _elementosCroquis.map((e) => e.toMap()).toList(),
+      'croquisDatos': _datosCroquis.toMap(),
+      // Fotos como base64 (para que sobrevivan en el borrador local)
+      'fotos': _archivosLocalesFotos.map((b) => base64Encode(b)).toList(),
+    };
+  }
+
+  // Guarda el borrador local (sin bloquear la UI)
+  Future<void> _autoguardarBorrador() async {
+    // No autoguardamos en modo edición ni si ya se creó la hoja
+    if (widget.esEdicion || _hojaCreada || !_huboCambios) return;
+
+    // Si todo está vacío, no creamos un borrador basura
+    if (_estaVacio()) return;
+
+    final borrador = BorradorLocal(
+      draftId: _draftId,
+      guardadoEn: DateTime.now(),
+      datos: _serializarEstado(),
+    );
+    await BorradorService.guardar(borrador);
+  }
+
+  bool _estaVacio() {
+    return _tanqueCtrl.text.isEmpty &&
+        _clienteCtrl.text.isEmpty &&
+        _serieCtrl.text.isEmpty &&
+        _elementosCroquis.isEmpty &&
+        _archivosLocalesFotos.isEmpty &&
+        !_radiografica.tieneContenido &&
+        !_fabricacion.tieneContenido;
+  }
+
+  // Carga un borrador local en el formulario
+  Future<void> _cargarBorrador(String draftId) async {
+    final b = await BorradorService.obtener(draftId);
+    if (b == null) { setState(() => _isLoading = false); return; }
+    final d = b.datos;
+
+    _tanqueCtrl.text = d['tanqueNumero'] ?? '';
+    _serieCtrl.text = d['serieNumero'] ?? '';
+    _certificadoCtrl.text = d['certificadoNumero'] ?? '';
+    _patenteCtrl.text = d['patenteNumero'] ?? '';
+    _planoCtrl.text = d['planoNumero'] ?? '';
+    _clienteCtrl.text = d['cliente'] ?? '';
+    _capacidadCtrl.text = d['capacidad'] ?? '';
+    _normaCtrl.text = d['normaAplicada'] ?? '';
+    _protocoloCtrl.text = d['protocoloNumero'] ?? '';
+    _maestranzaCtrl.text = d['maestranza'] ?? '';
+    _materialCtrl.text = d['material'] ?? '';
+    _certAnteriorCtrl.text = d['certificadoAnterior'] ?? '';
+    _chassisVinCtrl.text = d['numeroChassisVin'] ?? '';
+    _patenteVehiculoCtrl.text = d['patenteVehiculo'] ?? '';
+
+    _tipoInspeccion = (d['tipoInspeccion'] == 'fabricacion')
+        ? TipoInspeccion.fabricacion : TipoInspeccion.periodica;
+    _tiposTanque = ((d['tiposTanque'] as List?) ?? [])
+        .map((t) => TipoTanque.values.firstWhere((e) => e.name == t, orElse: () => TipoTanque.horizontal))
+        .toSet();
+
+    if (d['radiografica'] != null) _radiografica = InspeccionRadiografica.fromMap(Map<String, dynamic>.from(d['radiografica']));
+    if (d['fabricacion'] != null) _fabricacion = InspeccionFabricacion.fromMap(Map<String, dynamic>.from(d['fabricacion']));
+    if (d['hermeticidad'] != null) _hermeticidad = PruebaHermeticidad.fromMap(Map<String, dynamic>.from(d['hermeticidad']));
+    if (d['recubrimiento'] != null) _recubrimiento = InspeccionRecubrimiento.fromMap(Map<String, dynamic>.from(d['recubrimiento']));
+    if (d['accesorios'] != null) _accesorios = VerificacionAccesorios.fromMap(Map<String, dynamic>.from(d['accesorios']));
+    if (d['placa'] != null) _placa = PlacaIdentificacion.fromMap(Map<String, dynamic>.from(d['placa']));
+
+    _elementosCroquis = ((d['croquisElementos'] as List?) ?? [])
+        .map((e) => ElementoCanvas.fromMap(Map<String, dynamic>.from(e))).toList();
+    if (d['croquisDatos'] != null) _datosCroquis = CroquisDatos.fromMap(Map<String, dynamic>.from(d['croquisDatos']));
+
+    _archivosLocalesFotos = ((d['fotos'] as List?) ?? [])
+        .map((b64) => base64Decode(b64 as String)).toList();
+
+    setState(() => _isLoading = false);
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _tanqueCtrl.dispose(); _serieCtrl.dispose(); _certificadoCtrl.dispose();
     _patenteCtrl.dispose(); _planoCtrl.dispose(); _clienteCtrl.dispose();
     _capacidadCtrl.dispose(); _normaCtrl.dispose(); _protocoloCtrl.dispose();
@@ -166,6 +307,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
           _elementosCroquis = resultado.elementos;
           _datosCroquis = resultado.datos;
         });
+        _programarAutoguardado();
       }
     } else {
       // En edición abrimos con hojaId → guarda directo en Firestore
@@ -232,6 +374,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
         error = codigoOError; // hubo error
       } else {
         hojaIdFinal = nuevoId; // ID real, sin necesidad de buscar
+        _hojaCreada = true;    // detenemos el autoguardado de borrador
       }
     }
 
@@ -294,6 +437,10 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ));
     } else {
+      // Al crear la hoja con éxito, eliminamos el borrador local (ya no se necesita)
+      if (!widget.esEdicion) {
+        await BorradorService.eliminar(_draftId);
+      }
       // Mensaje según si quedaron fotos sin subir (offline)
       final msg = fotosFallidas > 0
           ? 'Hoja guardada. $fotosFallidas foto(s) se subirán al recuperar conexión.'
@@ -310,22 +457,32 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          widget.esEdicion ? 'Editar Hoja de Terreno' : 'Nueva Hoja de Terreno',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-        ),
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) async {
+        // Al retroceder: si hay cambios sin guardar y no se creó la hoja,
+        // guardamos el borrador local automáticamente.
+        if (!widget.esEdicion && !_hojaCreada && _huboCambios && !_estaVacio()) {
+          _debounce?.cancel();
+          await _autoguardarBorrador();
+        }
+      },
+      child: Scaffold(
         backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF111827),
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: Colors.grey.shade100),
+        appBar: AppBar(
+          title: Text(
+            widget.esEdicion ? 'Editar Hoja de Terreno' : 'Nueva Hoja de Terreno',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          ),
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF111827),
+          elevation: 0,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Container(height: 1, color: Colors.grey.shade100),
+          ),
         ),
-      ),
-      body: _isLoading
+        body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
           : Form(
               key: _formKey,
@@ -376,9 +533,9 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                     ),
                     child: Column(
                       children: [
-                        _TipoInspeccionTile(label: 'PERIÓDICA',   descripcion: 'Inspección periódica del equipo',          valor: TipoInspeccion.periodica,   seleccionado: _tipoInspeccion, onChanged: (v) => setState(() => _tipoInspeccion = v)),
+                        _TipoInspeccionTile(label: 'PERIÓDICA',   descripcion: 'Inspección periódica del equipo',          valor: TipoInspeccion.periodica,   seleccionado: _tipoInspeccion, onChanged: (v) { setState(() => _tipoInspeccion = v); _programarAutoguardado(); }),
                         Divider(height: 1, color: Colors.grey.shade200),
-                        _TipoInspeccionTile(label: 'FABRICACIÓN', descripcion: 'Inspección en proceso de fabricación',     valor: TipoInspeccion.fabricacion, seleccionado: _tipoInspeccion, onChanged: (v) => setState(() => _tipoInspeccion = v)),
+                        _TipoInspeccionTile(label: 'FABRICACIÓN', descripcion: 'Inspección en proceso de fabricación',     valor: TipoInspeccion.fabricacion, seleccionado: _tipoInspeccion, onChanged: (v) { setState(() => _tipoInspeccion = v); _programarAutoguardado(); }),
                       ],
                     ),
                   ),
@@ -421,13 +578,16 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                     children: TipoTanque.values.map((tipo) {
                       final selected = _tiposTanque.contains(tipo);
                       return GestureDetector(
-                        onTap: () => setState(() {
-                          if (selected) {
-                            _tiposTanque.remove(tipo);
-                          } else {
-                            _tiposTanque.add(tipo);
-                          }
-                        }),
+                        onTap: () {
+                          setState(() {
+                            if (selected) {
+                              _tiposTanque.remove(tipo);
+                            } else {
+                              _tiposTanque.add(tipo);
+                            }
+                          });
+                          _programarAutoguardado();
+                        },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -484,12 +644,12 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                     recubrimiento: _recubrimiento,
                     accesorios: _accesorios,
                     placa: _placa,
-                    onRadiograficaChanged: (v) => setState(() => _radiografica = v),
-                    onFabricacionChanged: (v) => setState(() => _fabricacion = v),
-                    onHermeticidadChanged: (v) => setState(() => _hermeticidad = v),
-                    onRecubrimientoChanged: (v) => setState(() => _recubrimiento = v),
-                    onAccesoriosChanged: (v) => setState(() => _accesorios = v),
-                    onPlacaChanged: (v) => setState(() => _placa = v),
+                    onRadiograficaChanged: (v) { setState(() => _radiografica = v); _programarAutoguardado(); },
+                    onFabricacionChanged: (v) { setState(() => _fabricacion = v); _programarAutoguardado(); },
+                    onHermeticidadChanged: (v) { setState(() => _hermeticidad = v); _programarAutoguardado(); },
+                    onRecubrimientoChanged: (v) { setState(() => _recubrimiento = v); _programarAutoguardado(); },
+                    onAccesoriosChanged: (v) { setState(() => _accesorios = v); _programarAutoguardado(); },
+                    onPlacaChanged: (v) { setState(() => _placa = v); _programarAutoguardado(); },
                   ),
 
                   const SizedBox(height: 24),
@@ -504,6 +664,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                     archivosLocales: _archivosLocalesFotos,
                     onArchivosChanged: (archivos) {
                       setState(() => _archivosLocalesFotos = archivos);
+                      _programarAutoguardado();
                     },
                   ),
 
@@ -600,6 +761,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                 ],
               ),
             ),
+      ),
     );
   }
 
