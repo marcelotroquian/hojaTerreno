@@ -50,6 +50,7 @@ class _CroquisScreenState extends State<CroquisScreen> {
   Color _colorActual = Colors.black;
   double _grosorActual = 3.0;
   double _fontSizeActual = 18.0;
+  double _grosorBorrador = 20.0; // la goma es más gruesa que el lápiz
 
   // ── Controladores de los campos de cabecera/pie ────────────────────────────
   final _espesorCuelloCtrl = TextEditingController();
@@ -192,7 +193,6 @@ class _CroquisScreenState extends State<CroquisScreen> {
 
   // ── Gestos ─────────────────────────────────────────────────────────────────
   void _onPanStart(DragStartDetails d) {
-    if (_herramienta == HerramientaCroquis.borrador) return;
     if (_herramienta == HerramientaCroquis.texto) { _pedirTexto(d.localPosition); return; }
 
     final id = _uuid.v4();
@@ -202,6 +202,10 @@ class _CroquisScreenState extends State<CroquisScreen> {
     switch (_herramienta) {
       case HerramientaCroquis.lapiz:
         nuevo = ElementoCanvas(id: id, tipo: TipoElemento.trazo, colorValue: _colorActual.value, grosor: _grosorActual, puntos: [inicio]);
+        break;
+      case HerramientaCroquis.borrador:
+        // La goma es un trazo que borra; el grosor de la goma es más grueso
+        nuevo = ElementoCanvas(id: id, tipo: TipoElemento.borrado, colorValue: 0, grosor: _grosorBorrador, puntos: [inicio]);
         break;
       case HerramientaCroquis.linea:
         nuevo = ElementoCanvas(id: id, tipo: TipoElemento.linea, colorValue: _colorActual.value, grosor: _grosorActual, inicio: inicio, fin: inicio);
@@ -221,7 +225,8 @@ class _CroquisScreenState extends State<CroquisScreen> {
     if (_enProgreso == null) return;
     final pos = PuntoCanvas(d.localPosition.dx, d.localPosition.dy);
     setState(() {
-      if (_herramienta == HerramientaCroquis.lapiz) {
+      // Lápiz y goma acumulan puntos (ambos son trazos libres)
+      if (_herramienta == HerramientaCroquis.lapiz || _herramienta == HerramientaCroquis.borrador) {
         final puntos = List<PuntoCanvas>.from(_enProgreso!.puntos)..add(pos);
         _enProgreso = _enProgreso!.copyWithPuntos(puntos);
       } else {
@@ -238,33 +243,6 @@ class _CroquisScreenState extends State<CroquisScreen> {
       _enProgreso = null;
       _hayCambios = true;
     });
-  }
-
-  void _onTapBorrador(TapDownDetails d) {
-    if (_herramienta != HerramientaCroquis.borrador) return;
-    final pos = d.localPosition;
-    for (int i = _elementos.length - 1; i >= 0; i--) {
-      if (_elementoCercano(_elementos[i], pos)) {
-        setState(() { _historial.add(List.from(_elementos)); _elementos.removeAt(i); _hayCambios = true; });
-        break;
-      }
-    }
-  }
-
-  bool _elementoCercano(ElementoCanvas el, Offset pos) {
-    const umbral = 20.0;
-    switch (el.tipo) {
-      case TipoElemento.trazo:
-        return el.puntos.any((p) => (p.toOffset() - pos).distance < umbral);
-      case TipoElemento.linea:
-      case TipoElemento.rectangulo:
-      case TipoElemento.circulo:
-        if (el.inicio == null || el.fin == null) return false;
-        return Rect.fromPoints(el.inicio!.toOffset(), el.fin!.toOffset()).inflate(umbral).contains(pos);
-      case TipoElemento.texto:
-        if (el.inicio == null) return false;
-        return (el.inicio!.toOffset() - pos).distance < 40;
-    }
   }
 
   Future<void> _pedirTexto(Offset posicion) async {
@@ -390,7 +368,6 @@ class _CroquisScreenState extends State<CroquisScreen> {
                         onPanStart: _onPanStart,
                         onPanUpdate: _onPanUpdate,
                         onPanEnd: _onPanEnd,
-                        onTapDown: _onTapBorrador,
                         child: CustomPaint(
                           painter: CroquisPainter(elementos: _elementos, elementoEnProgreso: _enProgreso),
                           child: Container(),
@@ -400,7 +377,7 @@ class _CroquisScreenState extends State<CroquisScreen> {
                   ),
                 ),
 
-                // ── Slider grosor ─────────────────────────────────────────
+                // ── Slider grosor (lápiz/formas) ──────────────────────────
                 if (_herramienta != HerramientaCroquis.texto && _herramienta != HerramientaCroquis.borrador)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -417,6 +394,27 @@ class _CroquisScreenState extends State<CroquisScreen> {
                           ),
                         ),
                         Text('${_grosorActual.round()} px', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+
+                // ── Slider grosor de la goma ──────────────────────────────
+                if (_herramienta == HerramientaCroquis.borrador)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.auto_fix_normal_rounded, color: Colors.white54, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Slider(
+                            value: _grosorBorrador, min: 8, max: 60, divisions: 26,
+                            activeColor: Colors.white, inactiveColor: Colors.white24,
+                            label: 'Goma ${_grosorBorrador.round()} px',
+                            onChanged: (v) => setState(() => _grosorBorrador = v),
+                          ),
+                        ),
+                        Text('${_grosorBorrador.round()} px', style: const TextStyle(color: Colors.white54, fontSize: 12)),
                       ],
                     ),
                   ),

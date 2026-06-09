@@ -15,7 +15,7 @@ enum HerramientaCroquis {
 }
 
 // ─── Enum de tipos de elemento ────────────────────────────────────────────────
-enum TipoElemento { trazo, linea, rectangulo, circulo, texto }
+enum TipoElemento { trazo, linea, rectangulo, circulo, texto, borrado }
 
 // ─── Clase base para un punto ─────────────────────────────────────────────────
 class PuntoCanvas {

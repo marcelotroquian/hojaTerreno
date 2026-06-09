@@ -12,6 +12,11 @@ class CroquisPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Usamos una capa (saveLayer) para que la goma (BlendMode.clear) pueda
+    // borrar lo que está debajo. Sin esta capa, clear pintaría negro en vez
+    // de borrar. Todo lo que se dibuje aquí queda aislado en su propia capa.
+    canvas.saveLayer(Offset.zero & size, Paint());
+
     // Dibujamos todos los elementos guardados
     for (final el in elementos) {
       _dibujarElemento(canvas, el);
@@ -20,9 +25,23 @@ class CroquisPainter extends CustomPainter {
     if (elementoEnProgreso != null) {
       _dibujarElemento(canvas, elementoEnProgreso!);
     }
+
+    canvas.restore(); // aplica la capa con los borrados ya procesados
   }
 
   void _dibujarElemento(Canvas canvas, ElementoCanvas el) {
+    // La goma: trazo que borra en vez de pintar (BlendMode.clear)
+    if (el.tipo == TipoElemento.borrado) {
+      final paintBorrador = Paint()
+        ..strokeWidth = el.grosor
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke
+        ..blendMode = BlendMode.clear; // ← borra los píxeles por donde pasa
+      _dibujarTrazo(canvas, el, paintBorrador);
+      return;
+    }
+
     final paint = Paint()
       ..color = el.color
       ..strokeWidth = el.grosor
@@ -46,12 +65,21 @@ class CroquisPainter extends CustomPainter {
       case TipoElemento.texto:
         _dibujarTexto(canvas, el);
         break;
+      case TipoElemento.borrado:
+        break; // ya manejado arriba
     }
   }
 
   // ─── Trazo libre ──────────────────────────────────────────────────────────
   void _dibujarTrazo(Canvas canvas, ElementoCanvas el, Paint paint) {
-    if (el.puntos.length < 2) return;
+    if (el.puntos.isEmpty) return;
+    // Un solo punto: dibujamos un punto (útil para toques rápidos y goma)
+    if (el.puntos.length == 1) {
+      final p = el.puntos.first;
+      canvas.drawCircle(Offset(p.x, p.y), paint.strokeWidth / 2,
+          Paint()..color = paint.color..blendMode = paint.blendMode);
+      return;
+    }
     final path = Path();
     path.moveTo(el.puntos.first.x, el.puntos.first.y);
     for (int i = 1; i < el.puntos.length; i++) {
