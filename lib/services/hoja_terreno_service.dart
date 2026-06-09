@@ -14,8 +14,8 @@ class HojaTerrenoService {
       _db.collection('contadores').doc('hdt');
 
   // ─── Generar el siguiente código HDT con transacción atómica ──────────────
-  // Usa una transacción para que dos usuarios creando a la vez NO obtengan
-  // el mismo número. Formato: HDT-2026-0001
+  // Requiere conexión (la transacción contacta el servidor). Si no hay conexión,
+  // lanza una excepción que el llamador captura para usar un código BORRADOR.
   static Future<String> _generarCodigo() async {
     final anio = DateTime.now().year.toString();
 
@@ -29,60 +29,109 @@ class HojaTerrenoService {
       }
 
       final siguiente = actual + 1;
-
-      // Guardar el contador actualizado (merge para no borrar otros años)
       tx.set(_contadorDoc, {anio: siguiente}, SetOptions(merge: true));
 
-      // Formatear: HDT-2026-0001 (4 dígitos con ceros a la izquierda)
       final numero = siguiente.toString().padLeft(4, '0');
       return 'HDT-$anio-$numero';
-    });
+    }).timeout(
+      // Si en 8s no responde el servidor, asumimos que no hay conexión
+      const Duration(seconds: 8),
+    );
 
     return codigo;
   }
 
-  // ─── CREAR — genera código HDT y devuelve el ID del documento ─────────────
-  // Retorna (hojaId, codigoHDT) si OK, o (null, mensajeError) si falla.
+  // ─── CREAR — funciona online y offline ─────────────────────────────────────
+  // Online:  genera HDT-2026-xxxx real y sincronizada=true.
+  // Offline: usa código BORRADOR-{timestamp} y sincronizada=false; el código
+  //          real se asigna después con sincronizarPendientes().
+  // Retorna (hojaId, codigoHDT) siempre (nunca falla por falta de conexión).
   static Future<(String?, String?)> crear({
     required String uid,
     required String nombreUsuario,
     required HojaTerreno datos,
   }) async {
+    // Intentamos generar el código real; si no hay conexión, usamos BORRADOR
+    String codigo;
+    bool sincronizada;
     try {
-      // 1. Generar código correlativo
-      final codigo = await _generarCodigo();
+      codigo = await _generarCodigo();
+      sincronizada = true;
+    } catch (_) {
+      // Sin conexión (o timeout): código temporal local
+      codigo = 'BORRADOR-${DateTime.now().millisecondsSinceEpoch}';
+      sincronizada = false;
+    }
 
-      // 2. Construir la hoja con el código incluido
-      final hoja = HojaTerreno(
-        id: '',
-        codigoHDT: codigo,
-        creadaPor: uid,
-        creadaPorNombre: nombreUsuario,
-        creadaEn: DateTime.now(),
-        modificadaEn: DateTime.now(),
-        tanqueNumero:      datos.tanqueNumero,
-        serieNumero:       datos.serieNumero,
-        certificadoNumero: datos.certificadoNumero,
-        patenteNumero:     datos.patenteNumero,
-        planoNumero:       datos.planoNumero,
-        cliente:           datos.cliente,
-        maestranza:        datos.maestranza,
-        capacidad:         datos.capacidad,
-        material:          datos.material,
-        tipoInspeccion:    datos.tipoInspeccion,
-        certificadoAnterior: datos.certificadoAnterior,
-        normaAplicada:     datos.normaAplicada,
-        protocoloNumero:   datos.protocoloNumero,
-        numeroChassisVin:  datos.numeroChassisVin,
-        patenteVehiculo:   datos.patenteVehiculo,
-        tiposTanque:       datos.tiposTanque,
-      );
+    final hoja = HojaTerreno(
+      id: '',
+      codigoHDT: codigo,
+      sincronizada: sincronizada,
+      creadaPor: uid,
+      creadaPorNombre: nombreUsuario,
+      creadaEn: DateTime.now(),
+      modificadaEn: DateTime.now(),
+      tanqueNumero:      datos.tanqueNumero,
+      serieNumero:       datos.serieNumero,
+      certificadoNumero: datos.certificadoNumero,
+      patenteNumero:     datos.patenteNumero,
+      planoNumero:       datos.planoNumero,
+      cliente:           datos.cliente,
+      maestranza:        datos.maestranza,
+      capacidad:         datos.capacidad,
+      material:          datos.material,
+      tipoInspeccion:    datos.tipoInspeccion,
+      certificadoAnterior: datos.certificadoAnterior,
+      normaAplicada:     datos.normaAplicada,
+      protocoloNumero:   datos.protocoloNumero,
+      numeroChassisVin:  datos.numeroChassisVin,
+      patenteVehiculo:   datos.patenteVehiculo,
+      tiposTanque:       datos.tiposTanque,
+    );
 
-      // 3. Crear el documento; add() genera el ID
-      final ref = await _col.add(hoja.toFirestore());
-      return (ref.id, codigo); // devolvemos id real + código legible
+    // IMPORTANTE: con persistencia offline, NO usamos await en el add cuando
+    // estamos offline (nunca completa). Usamos el DocumentReference que se crea
+    // inmediatamente en la caché local, y dejamos que Firestore sincronice solo.
+    try {
+      final ref = _col.doc(); // genera ID localmente, sin red
+      // No hacemos await: la escritura se encola y se sincroniza sola.
+      // En la caché local queda disponible al instante.
+      ref.set(hoja.toFirestore());
+      return (ref.id, codigo);
     } catch (e) {
       return (null, 'Error al crear la hoja: $e');
+    }
+  }
+
+  // ─── SINCRONIZAR hojas en BORRADOR ─────────────────────────────────────────
+  // Recorre las hojas con sincronizada=false y les asigna el código HDT real.
+  // Llamar cuando se detecte conexión (al abrir la app, al entrar a la lista).
+  // Devuelve cuántas hojas sincronizó.
+  static Future<int> sincronizarPendientes() async {
+    try {
+      // Buscamos pendientes desde el SERVIDOR (no caché) para confirmar conexión
+      final snap = await _col
+          .where('sincronizada', isEqualTo: false)
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 8));
+
+      int contador = 0;
+      for (final doc in snap.docs) {
+        try {
+          final codigoReal = await _generarCodigo();
+          await doc.reference.update({
+            'codigoHDT': codigoReal,
+            'sincronizada': true,
+          });
+          contador++;
+        } catch (_) {
+          // Si falla una, seguimos con las demás
+        }
+      }
+      return contador;
+    } catch (_) {
+      // Sin conexión: no hay nada que sincronizar ahora
+      return 0;
     }
   }
 

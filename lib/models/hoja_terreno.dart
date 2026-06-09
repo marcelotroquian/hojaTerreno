@@ -25,7 +25,8 @@ extension TipoTanqueLabel on TipoTanque {
 
 class HojaTerreno {
   final String id;
-  final String codigoHDT;   // Código legible: HDT-2026-0001
+  final String codigoHDT;   // Código legible: HDT-2026-0001 (o BORRADOR-xxx)
+  final bool sincronizada;  // false = creada offline, pendiente de código real
   final String creadaPor;
   final String creadaPorNombre;
   final DateTime creadaEn;
@@ -52,6 +53,7 @@ class HojaTerreno {
   const HojaTerreno({
     required this.id,
     this.codigoHDT = '',
+    this.sincronizada = true,
     required this.creadaPor,
     required this.creadaPorNombre,
     required this.creadaEn,
@@ -88,6 +90,7 @@ class HojaTerreno {
     return HojaTerreno(
       id: id,
       codigoHDT: data['codigoHDT'] ?? '',
+      sincronizada: data['sincronizada'] ?? true,
       creadaPor: data['creadaPor'] ?? '',
       creadaPorNombre: data['creadaPorNombre'] ?? '',
       creadaEn: DateTime.fromMillisecondsSinceEpoch(data['creadaEn'] ?? 0),
@@ -118,6 +121,7 @@ class HojaTerreno {
     return {
       'creadaPor': creadaPor,
       'codigoHDT': codigoHDT,
+      'sincronizada': sincronizada,
       'creadaPorNombre': creadaPorNombre,
       'creadaEn': creadaEn.millisecondsSinceEpoch,
       'modificadaEn': modificadaEn.millisecondsSinceEpoch,
@@ -165,6 +169,7 @@ class HojaTerreno {
     return HojaTerreno(
       id: id,
       codigoHDT: codigoHDT,
+      sincronizada: sincronizada,
       creadaPor: creadaPor,
       creadaPorNombre: creadaPorNombre,
       creadaEn: creadaEn,

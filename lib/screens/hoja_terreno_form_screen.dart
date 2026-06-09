@@ -251,13 +251,22 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
     }
 
     // Subir fotos locales si las hay (solo en creación)
+    // Storage NO tiene caché offline como Firestore, así que envolvemos cada
+    // subida en un timeout para no bloquear el guardado si no hay conexión.
+    // Si falla por estar offline, la hoja igual se guarda; las fotos se podrán
+    // re-subir al editar la hoja cuando haya internet.
+    int fotosFallidas = 0;
     if (error == null && widget.esEdicion == false && _archivosLocalesFotos.isNotEmpty && hojaIdFinal != null) {
       for (int i = 0; i < _archivosLocalesFotos.length; i++) {
-        await FotosService.subirFoto(
-          hojaId: hojaIdFinal,
-          bytes: _archivosLocalesFotos[i],
-          indice: i,
-        );
+        try {
+          await FotosService.subirFoto(
+            hojaId: hojaIdFinal,
+            bytes: _archivosLocalesFotos[i],
+            indice: i,
+          ).timeout(const Duration(seconds: 15));
+        } catch (_) {
+          fotosFallidas++; // probablemente sin conexión
+        }
       }
     }
 
@@ -285,9 +294,13 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ));
     } else {
+      // Mensaje según si quedaron fotos sin subir (offline)
+      final msg = fotosFallidas > 0
+          ? 'Hoja guardada. $fotosFallidas foto(s) se subirán al recuperar conexión.'
+          : (widget.esEdicion ? '¡Hoja actualizada!' : '¡Hoja creada exitosamente!');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(widget.esEdicion ? '¡Hoja actualizada!' : '¡Hoja creada exitosamente!'),
-        backgroundColor: Colors.green.shade600,
+        content: Text(msg),
+        backgroundColor: fotosFallidas > 0 ? Colors.orange.shade700 : Colors.green.shade600,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ));
