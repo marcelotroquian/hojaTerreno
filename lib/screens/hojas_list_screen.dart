@@ -19,26 +19,6 @@ class HojasListScreen extends StatefulWidget {
 
 class _HojasListScreenState extends State<HojasListScreen> {
   @override
-  void initState() {
-    super.initState();
-    // Al abrir la lista, intentamos sincronizar las hojas creadas offline.
-    // Si no hay conexión, no hace nada (devuelve 0).
-    _sincronizar();
-  }
-
-  Future<void> _sincronizar() async {
-    final n = await HojaTerrenoService.sincronizarPendientes();
-    if (n > 0 && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('$n hoja(s) sincronizada(s) con código HDT.'),
-        backgroundColor: Colors.green.shade600,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ));
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final currentUid = AuthService.currentUser?.uid ?? '';
 
@@ -225,48 +205,6 @@ class _HojaCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Código HDT + estado de sincronización
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  children: [
-                    if (hoja.codigoHDT.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: hoja.sincronizada
-                              ? const Color(0xFF6C63FF).withOpacity(0.1)
-                              : Colors.orange.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          hoja.sincronizada ? hoja.codigoHDT : 'BORRADOR',
-                          style: TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.bold,
-                            color: hoja.sincronizada ? const Color(0xFF6C63FF) : Colors.orange.shade800,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(width: 6),
-                    // Indicador de sincronización
-                    Icon(
-                      hoja.sincronizada ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
-                      size: 14,
-                      color: hoja.sincronizada ? Colors.green.shade400 : Colors.orange.shade400,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      hoja.sincronizada ? 'Sincronizada' : 'Pendiente',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: hoja.sincronizada ? Colors.green.shade600 : Colors.orange.shade700,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               // Encabezado: título + badges
               Row(
                 children: [

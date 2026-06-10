@@ -365,7 +365,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
       final profile = await ProfileService.getProfile(uid);
       final nombre = profile?.name ?? AuthService.currentUser?.displayName ?? 'Usuario';
 
-      // crear() devuelve (hojaId, codigoHDT) o (null, error)
+      // crear() devuelve (hojaId, null) o (null, error)
       final (nuevoId, codigoOError) = await HojaTerrenoService.crear(
         uid: uid, nombreUsuario: nombre, datos: datos,
       );
@@ -458,14 +458,19 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: true,
+      // canPop: false → controlamos la salida manualmente para garantizar
+      // que el borrador se guarde COMPLETO antes de cerrar la pantalla.
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
-        // Al retroceder: si hay cambios sin guardar y no se creó la hoja,
-        // guardamos el borrador local automáticamente.
+        if (didPop) return; // ya salió, nada que hacer
+
+        // Si hay cambios sin guardar y no se creó la hoja, guardamos el borrador
         if (!widget.esEdicion && !_hojaCreada && _huboCambios && !_estaVacio()) {
           _debounce?.cancel();
           await _autoguardarBorrador();
         }
+        // Ahora sí salimos (el guardado ya terminó)
+        if (mounted) Navigator.of(context).pop(result);
       },
       child: Scaffold(
         backgroundColor: Colors.white,

@@ -1,5 +1,5 @@
 // lib/screens/buscar_hojas_screen.dart
-// Búsqueda de Hojas de Terreno por código HDT, tanque o cliente.
+// Búsqueda de Hojas de Terreno por tanque, serie o cliente.
 
 import 'package:flutter/material.dart';
 import '../models/hoja_terreno.dart';
@@ -62,7 +62,7 @@ class _BuscarHojasScreenState extends State<BuscarHojasScreen> {
                     textInputAction: TextInputAction.search,
                     onSubmitted: (_) => _buscar(),
                     decoration: InputDecoration(
-                      hintText: 'Código HDT, tanque o cliente...',
+                      hintText: 'Número de tanque, serie o cliente...',
                       prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF6C63FF)),
                       filled: true,
                       fillColor: Colors.white,
@@ -128,7 +128,7 @@ class _BuscarHojasScreenState extends State<BuscarHojasScreen> {
         Text('Busca una hoja de terreno',
             style: TextStyle(fontSize: 16, color: Colors.grey.shade500)),
         const SizedBox(height: 6),
-        Text('Por código HDT, número de tanque o cliente',
+        Text('Por número de tanque, serie o cliente',
             style: TextStyle(fontSize: 13, color: Colors.grey.shade400)),
       ],
     ),
@@ -175,22 +175,6 @@ class _ResultadoCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Código HDT destacado
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6C63FF).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  hoja.codigoHDT.isNotEmpty ? hoja.codigoHDT : 'Sin código',
-                  style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.bold,
-                    color: Color(0xFF6C63FF), letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
               Text(hoja.titulo,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
               const SizedBox(height: 2),
