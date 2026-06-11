@@ -33,7 +33,7 @@ class HomeScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Bienvenido 👋', style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+                          Text('Bienvenido', style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
                           Text(name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
                         ],
                       ),

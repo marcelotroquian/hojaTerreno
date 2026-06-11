@@ -25,7 +25,7 @@ import '../models/croquis_datos.dart';
 
 class PdfService {
   // Color de acento (igual al de la app)
-  static const _morado = PdfColor.fromInt(0xFF6C63FF);
+  static const _morado = PdfColor.fromInt(0xFF313645);
   static const _gris = PdfColor.fromInt(0xFFEEEEEE);
   static const _negro = PdfColors.black;
 
