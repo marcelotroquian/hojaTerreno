@@ -25,7 +25,7 @@ import '../models/croquis_datos.dart';
 
 class PdfService {
   // Color de acento (igual al de la app)
-  static const _morado = PdfColor.fromInt(0xFF313645);
+  static const _morado = PdfColor.fromInt(0xFF6C63FF);
   static const _gris = PdfColor.fromInt(0xFFEEEEEE);
   static const _negro = PdfColors.black;
 
@@ -307,13 +307,13 @@ class PdfService {
             _celda('Distancia (pulg.)', r.distanciaPulg, flex: 1),
             _celda('Tiempo', r.tiempo, flex: 1),
           ]),
-          if (r.filas.isNotEmpty) _divisor(),
-          // Tabla operador/fecha/resultado
-          ...r.filas.map((f) => pw.Row(children: [
-            _celda('Operador', f.operador, flex: 2),
-            _celda('Fecha', f.fecha, flex: 1),
-            _celda('Resultado', f.resultado, flex: 1),
-          ])),
+          _divisor(),
+          // Inspector / Fecha / Resultado (uno solo)
+          _filaInspector(
+            r.inspector.isNotEmpty ? r.inspector : (r.filas.isNotEmpty ? r.filas.first.operador : ''),
+            r.fecha.isNotEmpty ? r.fecha : (r.filas.isNotEmpty ? r.filas.first.fecha : ''),
+            r.resultado.isNotEmpty ? r.resultado : (r.filas.isNotEmpty ? r.filas.first.resultado : ''),
+          ),
         ]),
       ],
     );

@@ -239,17 +239,8 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
     final hoja = await HojaTerrenoService.escuchar(widget.hojaId!).first;
     if (hoja == null || !mounted) return;
 
-    // En modo edición también cargamos el croquis y fotos existentes
-    final elementos = await CroquisService.cargar(widget.hojaId!);
-    final datosCroquis = await CroquisService.cargarDatos(widget.hojaId!);
-    final urls = await FotosService.obtenerUrls(widget.hojaId!);
-    final radio = await SeccionesService.cargarRadiografica(widget.hojaId!);
-    final fabri = await SeccionesService.cargarFabricacion(widget.hojaId!);
-    final herme = await SeccionesService.cargarHermeticidad(widget.hojaId!);
-    final recub = await SeccionesService.cargarRecubrimiento(widget.hojaId!);
-    final acces = await SeccionesService.cargarAccesorios(widget.hojaId!);
-    final placa = await SeccionesService.cargarPlaca(widget.hojaId!);
-
+    // Mostramos de inmediato los datos principales de la hoja (rápido),
+    // así el formulario aparece sin esperar croquis/secciones/fotos.
     setState(() {
       _hojaOriginal        = hoja;
       _tanqueCtrl.text     = hoja.tanqueNumero;
@@ -268,16 +259,34 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
       _tipoInspeccion      = hoja.tipoInspeccion;
       _normaCtrl.text      = hoja.normaAplicada;
       _protocoloCtrl.text  = hoja.protocoloNumero;
-      _elementosCroquis    = elementos;
-      _datosCroquis        = datosCroquis;
-      _urlsFotos           = urls;
-      _radiografica        = radio;
-      _fabricacion         = fabri;
-      _hermeticidad        = herme;
-      _recubrimiento       = recub;
-      _accesorios          = acces;
-      _placa               = placa;
-      _isLoading           = false;
+      _isLoading           = false; // ← el formulario ya se ve
+    });
+
+    // Cargamos croquis, fotos y las 6 secciones EN PARALELO (no una tras otra).
+    // Future.wait lanza todas a la vez; esperamos solo lo que tarde la más lenta.
+    final resultados = await Future.wait([
+      CroquisService.cargar(widget.hojaId!),          // 0
+      CroquisService.cargarDatos(widget.hojaId!),     // 1
+      FotosService.obtenerUrls(widget.hojaId!),       // 2
+      SeccionesService.cargarRadiografica(widget.hojaId!),  // 3
+      SeccionesService.cargarFabricacion(widget.hojaId!),   // 4
+      SeccionesService.cargarHermeticidad(widget.hojaId!),  // 5
+      SeccionesService.cargarRecubrimiento(widget.hojaId!), // 6
+      SeccionesService.cargarAccesorios(widget.hojaId!),    // 7
+      SeccionesService.cargarPlaca(widget.hojaId!),         // 8
+    ]);
+
+    if (!mounted) return;
+    setState(() {
+      _elementosCroquis = resultados[0] as List<ElementoCanvas>;
+      _datosCroquis     = resultados[1] as CroquisDatos;
+      _urlsFotos        = (resultados[2] as List).cast<String>();
+      _radiografica     = resultados[3] as InspeccionRadiografica;
+      _fabricacion      = resultados[4] as InspeccionFabricacion;
+      _hermeticidad     = resultados[5] as PruebaHermeticidad;
+      _recubrimiento    = resultados[6] as InspeccionRecubrimiento;
+      _accesorios       = resultados[7] as VerificacionAccesorios;
+      _placa            = resultados[8] as PlacaIdentificacion;
     });
   }
 

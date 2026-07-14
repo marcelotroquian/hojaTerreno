@@ -10,7 +10,13 @@ class InspeccionRadiografica {
   final String distanciaPulg;
   final String tiempo;
 
-  // ── 2. Filas de operador/fecha/resultado (hasta 5 filas) ──────────────────
+  // ── 2. Inspector / Fecha / Resultado (uno solo) ───────────────────────────
+  final String inspector;
+  final String fecha;
+  final String resultado;
+
+  // (Legado) Filas antiguas de operador/fecha/resultado — ya no se usan en la UI,
+  // pero se conservan para no romper datos guardados previamente.
   final List<FilaInspeccion> filas;
 
   const InspeccionRadiografica({
@@ -21,10 +27,26 @@ class InspeccionRadiografica {
     this.curitaje = '',
     this.distanciaPulg = '',
     this.tiempo = '',
+    this.inspector = '',
+    this.fecha = '',
+    this.resultado = '',
     this.filas = const [],
   });
 
   factory InspeccionRadiografica.fromMap(Map<String, dynamic> m) {
+    // Compatibilidad: si no hay inspector nuevo pero sí filas viejas,
+    // tomamos la primera fila como inspector/fecha/resultado.
+    final filasViejas = (m['filas'] as List<dynamic>? ?? [])
+        .map((f) => FilaInspeccion.fromMap(Map<String, dynamic>.from(f)))
+        .toList();
+    String insp = m['inspector'] ?? '';
+    String fec = m['fecha'] ?? '';
+    String res = m['resultado'] ?? '';
+    if (insp.isEmpty && fec.isEmpty && res.isEmpty && filasViejas.isNotEmpty) {
+      insp = filasViejas.first.operador;
+      fec = filasViejas.first.fecha;
+      res = filasViejas.first.resultado;
+    }
     return InspeccionRadiografica(
       equipo:         m['equipo'] ?? '',
       numero:         m['numero'] ?? '',
@@ -33,30 +55,36 @@ class InspeccionRadiografica {
       curitaje:       m['curitaje'] ?? '',
       distanciaPulg:  m['distanciaPulg'] ?? '',
       tiempo:         m['tiempo'] ?? '',
-      filas: (m['filas'] as List<dynamic>? ?? [])
-          .map((f) => FilaInspeccion.fromMap(Map<String, dynamic>.from(f)))
-          .toList(),
+      inspector:      insp,
+      fecha:          fec,
+      resultado:      res,
+      filas:          filasViejas,
     );
   }
 
   Map<String, dynamic> toMap() => {
     'equipo': equipo, 'numero': numero, 'inicio': inicio, 'fin': fin,
     'curitaje': curitaje, 'distanciaPulg': distanciaPulg, 'tiempo': tiempo,
-    'filas': filas.map((f) => f.toMap()).toList(),
+    'inspector': inspector, 'fecha': fecha, 'resultado': resultado,
   };
 
   bool get tieneContenido =>
-      equipo.isNotEmpty || numero.isNotEmpty || filas.any((f) => f.tieneContenido);
+      equipo.isNotEmpty || numero.isNotEmpty ||
+      inspector.isNotEmpty || resultado.isNotEmpty;
 
   InspeccionRadiografica copyWith({
     String? equipo, String? numero, String? inicio, String? fin,
     String? curitaje, String? distanciaPulg, String? tiempo,
+    String? inspector, String? fecha, String? resultado,
     List<FilaInspeccion>? filas,
   }) => InspeccionRadiografica(
     equipo: equipo ?? this.equipo, numero: numero ?? this.numero,
     inicio: inicio ?? this.inicio, fin: fin ?? this.fin,
     curitaje: curitaje ?? this.curitaje, distanciaPulg: distanciaPulg ?? this.distanciaPulg,
-    tiempo: tiempo ?? this.tiempo, filas: filas ?? this.filas,
+    tiempo: tiempo ?? this.tiempo,
+    inspector: inspector ?? this.inspector, fecha: fecha ?? this.fecha,
+    resultado: resultado ?? this.resultado,
+    filas: filas ?? this.filas,
   );
 }
 

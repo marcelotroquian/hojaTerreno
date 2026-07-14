@@ -32,9 +32,10 @@ class _InspeccionRadiograficaScreenState extends State<InspeccionRadiograficaScr
   late final TextEditingController _distanciaCtrl;
   late final TextEditingController _tiempoCtrl;
 
-  // Filas operador/fecha/resultado — máximo 5
-  static const int maxFilas = 5;
-  late List<_FilaCtrl> _filasCtrl;
+  // Inspector / Fecha / Resultado (uno solo)
+  late final TextEditingController _inspectorCtrl;
+  late final TextEditingController _fechaCtrl;
+  late final TextEditingController _resultadoCtrl;
 
   bool _isLoading = true;
   bool _isSaving  = false;
@@ -57,12 +58,9 @@ class _InspeccionRadiograficaScreenState extends State<InspeccionRadiograficaScr
     _curitajeCtrl  = TextEditingController(text: d.curitaje);
     _distanciaCtrl = TextEditingController(text: d.distanciaPulg);
     _tiempoCtrl    = TextEditingController(text: d.tiempo);
-
-    // Rellenar filas existentes + vacías hasta maxFilas
-    _filasCtrl = List.generate(maxFilas, (i) {
-      final fila = i < d.filas.length ? d.filas[i] : const FilaInspeccion();
-      return _FilaCtrl(fila);
-    });
+    _inspectorCtrl = TextEditingController(text: d.inspector);
+    _fechaCtrl     = TextEditingController(text: d.fecha);
+    _resultadoCtrl = TextEditingController(text: d.resultado);
     setState(() => _isLoading = false);
   }
 
@@ -76,7 +74,7 @@ class _InspeccionRadiograficaScreenState extends State<InspeccionRadiograficaScr
     _equipoCtrl.dispose(); _numeroCtrl.dispose(); _inicioCtrl.dispose();
     _finCtrl.dispose(); _curitajeCtrl.dispose(); _distanciaCtrl.dispose();
     _tiempoCtrl.dispose();
-    for (final f in _filasCtrl) f.dispose();
+    _inspectorCtrl.dispose(); _fechaCtrl.dispose(); _resultadoCtrl.dispose();
     super.dispose();
   }
 
@@ -89,14 +87,9 @@ class _InspeccionRadiograficaScreenState extends State<InspeccionRadiograficaScr
       curitaje:      _curitajeCtrl.text.trim(),
       distanciaPulg: _distanciaCtrl.text.trim(),
       tiempo:        _tiempoCtrl.text.trim(),
-      filas: _filasCtrl
-          .map((f) => FilaInspeccion(
-                operador:  f.operadorCtrl.text.trim(),
-                fecha:     f.fechaCtrl.text.trim(),
-                resultado: f.resultadoCtrl.text.trim(),
-              ))
-          .where((f) => f.tieneContenido)
-          .toList(),
+      inspector:     _inspectorCtrl.text.trim(),
+      fecha:         _fechaCtrl.text.trim(),
+      resultado:     _resultadoCtrl.text.trim(),
     );
   }
 
@@ -173,16 +166,22 @@ class _InspeccionRadiograficaScreenState extends State<InspeccionRadiograficaScr
 
                 const SizedBox(height: 24),
 
-                // ── Tabla Operador / Fecha / Resultado ─────────────────────
-                SeccionHeader(numero: '', titulo: 'Operador — Fecha — Resultado'),
-                const SizedBox(height: 12),
-
-                // Encabezado de tabla
-                _FilaEncabezado(),
-                const Divider(height: 1),
-
-                // Filas editables
-                ...List.generate(maxFilas, (i) => _FilaEditable(ctrl: _filasCtrl[i], numero: i + 1)),
+                // ── Inspector / Fecha / Resultado (uno solo) ───────────────
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6C63FF).withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.15)),
+                  ),
+                  child: Row(children: [
+                    Expanded(child: _campo(_inspectorCtrl, 'Inspector')),
+                    const SizedBox(width: 12),
+                    Expanded(child: _campo(_fechaCtrl, 'Fecha')),
+                    const SizedBox(width: 12),
+                    Expanded(child: _campo(_resultadoCtrl, 'Resultado')),
+                  ]),
+                ),
 
                 const SizedBox(height: 32),
                 _botonGuardar(),
@@ -227,75 +226,3 @@ class _InspeccionRadiograficaScreenState extends State<InspeccionRadiograficaScr
     ),
   );
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-class _FilaCtrl {
-  final TextEditingController operadorCtrl;
-  final TextEditingController fechaCtrl;
-  final TextEditingController resultadoCtrl;
-
-  _FilaCtrl(FilaInspeccion f)
-      : operadorCtrl  = TextEditingController(text: f.operador),
-        fechaCtrl     = TextEditingController(text: f.fecha),
-        resultadoCtrl = TextEditingController(text: f.resultado);
-
-  void dispose() { operadorCtrl.dispose(); fechaCtrl.dispose(); resultadoCtrl.dispose(); }
-}
-
-class _FilaEncabezado extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF6C63FF).withOpacity(0.08),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-      ),
-      child: const Row(children: [
-        SizedBox(width: 28),
-        Expanded(flex: 3, child: Text('Operador', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF374151)))),
-        Expanded(flex: 2, child: Text('Fecha',    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF374151)))),
-        Expanded(flex: 2, child: Text('Resultado',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF374151)))),
-      ]),
-    );
-  }
-}
-
-class _FilaEditable extends StatelessWidget {
-  final _FilaCtrl ctrl;
-  final int numero;
-  const _FilaEditable({required this.ctrl, required this.numero});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-      ),
-      child: Row(children: [
-        SizedBox(width: 28, child: Text('$numero', style: TextStyle(fontSize: 11, color: Colors.grey.shade400, fontWeight: FontWeight.w600))),
-        Expanded(flex: 3, child: _mini(ctrl.operadorCtrl, 'Operador')),
-        const SizedBox(width: 6),
-        Expanded(flex: 2, child: _mini(ctrl.fechaCtrl,    'dd/mm/aaaa')),
-        const SizedBox(width: 6),
-        Expanded(flex: 2, child: _mini(ctrl.resultadoCtrl,'Resultado')),
-      ]),
-    );
-  }
-
-  Widget _mini(TextEditingController c, String hint) => TextField(
-    controller: c,
-    style: const TextStyle(fontSize: 12),
-    decoration: InputDecoration(
-      isDense: true, hintText: hint,
-      hintStyle: TextStyle(fontSize: 11, color: Colors.grey.shade300),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: Colors.grey.shade200)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: Colors.grey.shade200)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF6C63FF))),
-    ),
-  );
-}
-
