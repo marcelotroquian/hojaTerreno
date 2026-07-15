@@ -50,4 +50,8 @@ class VerificacionAccesorios {
 
   bool get tieneContenido =>
       presionEsp.isNotEmpty || vacioEsp.isNotEmpty || inspector.isNotEmpty;
+
+  // Completo: resultado elegido (OK/No Conforme) y horas puestas
+  bool get estaCompleto =>
+      resultado.isNotEmpty;
 }

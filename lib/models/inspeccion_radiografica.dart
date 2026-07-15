@@ -72,6 +72,10 @@ class InspeccionRadiografica {
       equipo.isNotEmpty || numero.isNotEmpty ||
       inspector.isNotEmpty || resultado.isNotEmpty;
 
+  // Completo: resultado elegido (OK/No Conforme) y horas puestas
+  bool get estaCompleto =>
+      resultado.isNotEmpty && inicio.isNotEmpty && fin.isNotEmpty;
+
   InspeccionRadiografica copyWith({
     String? equipo, String? numero, String? inicio, String? fin,
     String? curitaje, String? distanciaPulg, String? tiempo,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/prueba_hermeticidad.dart';
 import '../services/secciones_service.dart';
 import '../widgets/seccion_header.dart';
+import '../widgets/campos_ensayo.dart';
 
 class PruebaHermeticidadScreen extends StatefulWidget {
   final String? hojaId;
@@ -77,6 +78,8 @@ class _PruebaHermeticidadScreenState extends State<PruebaHermeticidadScreen> {
     _inspectorCtrl = TextEditingController(text: d.inspector);
     _fechaCtrl     = TextEditingController(text: d.fecha);
     _resultadoCtrl = TextEditingController(text: d.resultado);
+    // Autocompletar inspector (perfil) y fecha actual si están vacíos
+    AutocompletarEnsayo.aplicar(inspector: _inspectorCtrl, fecha: _fechaCtrl);
     setState(() => _isLoading = false);
   }
 
@@ -109,6 +112,17 @@ class _PruebaHermeticidadScreenState extends State<PruebaHermeticidadScreen> {
   );
 
   Future<void> _guardar() async {
+    // Validar horas: formato correcto y que inicio no sea mayor que fin
+    final errorHoras = CamposEnsayo.validarPares([(_inicioCtrl, _finCtrl)]);
+    if (errorHoras != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errorHoras),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ));
+      return;
+    }
     final datos = _leerFormulario();
     if (widget.esModoLocal) { Navigator.pop(context, datos); return; }
     setState(() => _isSaving = true);
@@ -152,9 +166,9 @@ class _PruebaHermeticidadScreenState extends State<PruebaHermeticidadScreen> {
 
                 // Inicio / Fin generales
                 Row(children: [
-                  Expanded(child: _campo(_inicioCtrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicioCtrl, label: 'Inicio')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_finCtrl, 'Fin')),
+                  Expanded(child: CampoHora(controller: _finCtrl, label: 'Fin')),
                   const Spacer(),
                 ]),
 
@@ -207,7 +221,7 @@ class _PruebaHermeticidadScreenState extends State<PruebaHermeticidadScreen> {
                     const SizedBox(width: 12),
                     Expanded(child: _campo(_fechaCtrl, 'Fecha')),
                     const SizedBox(width: 12),
-                    Expanded(child: _campo(_resultadoCtrl, 'Resultado')),
+                    Expanded(child: CampoResultado(controller: _resultadoCtrl)),
                   ]),
                 ),
 

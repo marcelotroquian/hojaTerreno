@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/inspeccion_recubrimiento.dart';
 import '../services/secciones_service.dart';
 import '../widgets/seccion_header.dart';
+import '../widgets/campos_ensayo.dart';
 
 class InspeccionRecubrimientoScreen extends StatefulWidget {
   final String? hojaId;
@@ -91,6 +92,8 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
     _inspectorCtrl      = TextEditingController(text: d.inspector);
     _fechaCtrl          = TextEditingController(text: d.fecha);
     _resultadoCtrl      = TextEditingController(text: d.resultado);
+    // Autocompletar inspector (perfil) y fecha actual si están vacíos
+    AutocompletarEnsayo.aplicar(inspector: _inspectorCtrl, fecha: _fechaCtrl);
     setState(() => _isLoading = false);
   }
 
@@ -129,6 +132,17 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
   );
 
   Future<void> _guardar() async {
+    // Validar horas: formato correcto y que inicio no sea mayor que fin
+    final errorHoras = CamposEnsayo.validarPares([(_inicio41Ctrl, _fin41Ctrl), (_inicio42Ctrl, _fin42Ctrl), (_inicio43Ctrl, _fin43Ctrl)]);
+    if (errorHoras != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errorHoras),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ));
+      return;
+    }
     final datos = _leerFormulario();
     if (widget.esModoLocal) { Navigator.pop(context, datos); return; }
 
@@ -181,9 +195,9 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
                   const SizedBox(width: 12),
                   Expanded(flex: 3, child: _campo(_materialCtrl,  'Material')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_inicio41Ctrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicio41Ctrl, label: 'Inicio')),
                   const SizedBox(width: 8),
-                  Expanded(child: _campo(_fin41Ctrl,    'Fin')),
+                  Expanded(child: CampoHora(controller: _fin41Ctrl, label: 'Fin')),
                 ]),
                 const SizedBox(height: 12),
 
@@ -213,9 +227,9 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
                   const SizedBox(width: 12),
                   Expanded(flex: 2, child: _campo(_cantidadMedidasCtrl, 'Cantidad Medidas')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_inicio42Ctrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicio42Ctrl, label: 'Inicio')),
                   const SizedBox(width: 8),
-                  Expanded(child: _campo(_fin42Ctrl,    'Fin')),
+                  Expanded(child: CampoHora(controller: _fin42Ctrl, label: 'Fin')),
                 ]),
                 const SizedBox(height: 12),
 
@@ -241,9 +255,9 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
                   const SizedBox(width: 12),
                   Expanded(child: _campo(_instrumento43Ctrl, 'Instrumento')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_inicio43Ctrl,      'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicio43Ctrl, label: 'Inicio')),
                   const SizedBox(width: 8),
-                  Expanded(child: _campo(_fin43Ctrl,         'Fin')),
+                  Expanded(child: CampoHora(controller: _fin43Ctrl, label: 'Fin')),
                 ]),
 
                 const SizedBox(height: 24),
@@ -261,7 +275,7 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
                     const SizedBox(width: 12),
                     Expanded(flex: 2, child: _campo(_fechaCtrl,     'Fecha')),
                     const SizedBox(width: 12),
-                    Expanded(flex: 2, child: _campo(_resultadoCtrl, 'Resultado')),
+                    Expanded(flex: 2, child: CampoResultado(controller: _resultadoCtrl)),
                   ]),
                 ),
 

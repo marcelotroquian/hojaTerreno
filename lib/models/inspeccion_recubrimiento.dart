@@ -75,4 +75,8 @@ class InspeccionRecubrimiento {
 
   bool get tieneContenido =>
       tipo.isNotEmpty || material.isNotEmpty || espesorMinimo.isNotEmpty || inspector.isNotEmpty;
+
+  // Completo: resultado elegido (OK/No Conforme) y horas puestas
+  bool get estaCompleto =>
+      resultado.isNotEmpty;
 }

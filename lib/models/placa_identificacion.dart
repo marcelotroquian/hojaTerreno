@@ -51,4 +51,8 @@ class PlacaIdentificacion {
   bool get tieneContenido =>
       ubicacion.isNotEmpty || verificacionDatos || cunoIII ||
       numeroCertificadoAcunado || inspector.isNotEmpty;
+
+  // Completo: resultado elegido (OK/No Conforme) y horas puestas
+  bool get estaCompleto =>
+      resultado.isNotEmpty && inicio.isNotEmpty && fin.isNotEmpty;
 }

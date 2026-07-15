@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/inspeccion_fabricacion.dart';
 import '../services/secciones_service.dart';
 import '../widgets/seccion_header.dart';
+import '../widgets/campos_ensayo.dart';
 
 class InspeccionFabricacionScreen extends StatefulWidget {
   final String? hojaId;
@@ -126,6 +127,8 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
     _fechaCtrl     = TextEditingController(text: d.fecha);
     _resultadoCtrl = TextEditingController(text: d.resultado);
 
+    // Autocompletar inspector (perfil) y fecha actual si están vacíos
+    AutocompletarEnsayo.aplicar(inspector: _inspectorCtrl, fecha: _fechaCtrl);
     setState(() => _isLoading = false);
   }
 
@@ -177,6 +180,17 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
   );
 
   Future<void> _guardar() async {
+    // Validar horas: formato correcto y que inicio no sea mayor que fin
+    final errorHoras = CamposEnsayo.validarPares([(_inicio21Ctrl, _fin21Ctrl), (_inicioMantoCtrl, _finMantoCtrl), (_inicioCabezalCtrl, _finCabezalCtrl), (_inicio23Ctrl, _fin23Ctrl), (_inicio24Ctrl, _fin24Ctrl), (_inicio25Ctrl, _fin25Ctrl)]);
+    if (errorHoras != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errorHoras),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ));
+      return;
+    }
     final datos = _leerFormulario();
     if (widget.esModoLocal) { Navigator.pop(context, datos); return; }
     setState(() => _isSaving = true);
@@ -231,9 +245,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
                 ),
                 const SizedBox(height: 10),
                 Row(children: [
-                  Expanded(child: _campo(_inicio21Ctrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicio21Ctrl, label: 'Inicio')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_fin21Ctrl, 'Fin')),
+                  Expanded(child: CampoHora(controller: _fin21Ctrl, label: 'Fin')),
                   const Spacer(),
                 ]),
 
@@ -257,9 +271,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
                 _campo(_valvulaFondoCtrl, 'Válvula de fondo'),
                 const SizedBox(height: 10),
                 Row(children: [
-                  Expanded(child: _campo(_inicioMantoCtrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicioMantoCtrl, label: 'Inicio')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_finMantoCtrl, 'Fin')),
+                  Expanded(child: CampoHora(controller: _finMantoCtrl, label: 'Fin')),
                   const Spacer(),
                 ]),
 
@@ -279,9 +293,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
                 ),
                 const SizedBox(height: 10),
                 Row(children: [
-                  Expanded(child: _campo(_inicioCabezalCtrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicioCabezalCtrl, label: 'Inicio')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_finCabezalCtrl, 'Fin')),
+                  Expanded(child: CampoHora(controller: _finCabezalCtrl, label: 'Fin')),
                   const Spacer(),
                 ]),
 
@@ -326,9 +340,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
                   const SizedBox(width: 12),
                   Expanded(child: _campoSufijo(_alturaMantoBridaCtrl, 'Altura manto brida', 'mm')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_inicio23Ctrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicio23Ctrl, label: 'Inicio')),
                   const SizedBox(width: 8),
-                  Expanded(child: _campo(_fin23Ctrl, 'Fin')),
+                  Expanded(child: CampoHora(controller: _fin23Ctrl, label: 'Fin')),
                 ]),
                 const SizedBox(height: 10),
                 Row(children: [
@@ -359,9 +373,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
                 ]),
                 const SizedBox(height: 10),
                 Row(children: [
-                  Expanded(child: _campo(_inicio24Ctrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicio24Ctrl, label: 'Inicio')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_fin24Ctrl, 'Fin')),
+                  Expanded(child: CampoHora(controller: _fin24Ctrl, label: 'Fin')),
                   const Spacer(),
                 ]),
 
@@ -390,9 +404,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
                   const SizedBox(width: 12),
                   Expanded(child: _campo(_soldEnCabezalCtrl, 'Soldadura en cabezal')),
                   const SizedBox(width: 12),
-                  Expanded(child: _campo(_inicio25Ctrl, 'Inicio')),
+                  Expanded(child: CampoHora(controller: _inicio25Ctrl, label: 'Inicio')),
                   const SizedBox(width: 8),
-                  Expanded(child: _campo(_fin25Ctrl, 'Fin')),
+                  Expanded(child: CampoHora(controller: _fin25Ctrl, label: 'Fin')),
                 ]),
                 const SizedBox(height: 10),
                 Row(children: [
@@ -416,7 +430,7 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
                     const SizedBox(width: 12),
                     Expanded(child: _campo(_fechaCtrl, 'Fecha')),
                     const SizedBox(width: 12),
-                    Expanded(child: _campo(_resultadoCtrl, 'Resultado')),
+                    Expanded(child: CampoResultado(controller: _resultadoCtrl)),
                   ]),
                 ),
 

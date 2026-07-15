@@ -64,4 +64,8 @@ class PruebaHermeticidad {
   bool get tieneContenido =>
       presionTanque.isNotEmpty || presionSerpentin.isNotEmpty ||
       presionMamparos.isNotEmpty || inspector.isNotEmpty;
+
+  // Completo: resultado elegido (OK/No Conforme) y horas puestas
+  bool get estaCompleto =>
+      resultado.isNotEmpty && inicio.isNotEmpty && fin.isNotEmpty;
 }

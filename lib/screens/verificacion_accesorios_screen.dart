@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/verificacion_accesorios.dart';
 import '../services/secciones_service.dart';
 import '../widgets/seccion_header.dart';
+import '../widgets/campos_ensayo.dart';
 
 class VerificacionAccesoriosScreen extends StatefulWidget {
   final String? hojaId;
@@ -59,6 +60,8 @@ class _VerificacionAccesoriosScreenState extends State<VerificacionAccesoriosScr
     _inspectorCtrl     = TextEditingController(text: d.inspector);
     _fechaCtrl         = TextEditingController(text: d.fecha);
     _resultadoCtrl     = TextEditingController(text: d.resultado);
+    // Autocompletar inspector (perfil) y fecha actual si están vacíos
+    AutocompletarEnsayo.aplicar(inspector: _inspectorCtrl, fecha: _fechaCtrl);
     setState(() => _isLoading = false);
   }
 
@@ -88,6 +91,17 @@ class _VerificacionAccesoriosScreenState extends State<VerificacionAccesoriosScr
   );
 
   Future<void> _guardar() async {
+    // Validar horas: formato correcto y que inicio no sea mayor que fin
+    final errorHoras = CamposEnsayo.validarPares([(_inicioPresionCtrl, _finPresionCtrl), (_inicioVacioCtrl, _finVacioCtrl)]);
+    if (errorHoras != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errorHoras),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ));
+      return;
+    }
     final datos = _leerFormulario();
     if (widget.esModoLocal) { Navigator.pop(context, datos); return; }
     setState(() => _isSaving = true);
@@ -151,9 +165,9 @@ class _VerificacionAccesoriosScreenState extends State<VerificacionAccesoriosScr
                       ]),
                       const SizedBox(height: 10),
                       Row(children: [
-                        Expanded(child: _campo(_inicioPresionCtrl, 'Inicio')),
+                        Expanded(child: CampoHora(controller: _inicioPresionCtrl, label: 'Inicio')),
                         const SizedBox(width: 10),
-                        Expanded(child: _campo(_finPresionCtrl, 'Fin')),
+                        Expanded(child: CampoHora(controller: _finPresionCtrl, label: 'Fin')),
                         const Spacer(),
                       ]),
                     ],
@@ -184,9 +198,9 @@ class _VerificacionAccesoriosScreenState extends State<VerificacionAccesoriosScr
                       ]),
                       const SizedBox(height: 10),
                       Row(children: [
-                        Expanded(child: _campo(_inicioVacioCtrl, 'Inicio')),
+                        Expanded(child: CampoHora(controller: _inicioVacioCtrl, label: 'Inicio')),
                         const SizedBox(width: 10),
-                        Expanded(child: _campo(_finVacioCtrl, 'Fin')),
+                        Expanded(child: CampoHora(controller: _finVacioCtrl, label: 'Fin')),
                         const Spacer(),
                       ]),
                     ],
@@ -219,7 +233,7 @@ class _VerificacionAccesoriosScreenState extends State<VerificacionAccesoriosScr
       const SizedBox(width: 12),
       Expanded(child: _campo(_fechaCtrl, 'Fecha')),
       const SizedBox(width: 12),
-      Expanded(child: _campo(_resultadoCtrl, 'Resultado')),
+      Expanded(child: CampoResultado(controller: _resultadoCtrl)),
     ]),
   );
 

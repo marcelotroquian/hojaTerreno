@@ -149,4 +149,8 @@ class InspeccionFabricacion {
       mantoForma.isNotEmpty || cabezalForma.isNotEmpty ||
       largoExterior.isNotEmpty || tipoConexiones.isNotEmpty ||
       soldLongitudinales.isNotEmpty || inspector.isNotEmpty;
+
+  // Completo: resultado elegido (OK/No Conforme) y horas puestas
+  bool get estaCompleto =>
+      resultado.isNotEmpty;
 }

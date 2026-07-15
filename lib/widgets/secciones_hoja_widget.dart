@@ -56,7 +56,7 @@ class SeccionesHojaWidget extends StatelessWidget {
           numero: '1', titulo: 'Inspección Radiográfica',
           subtitulo: 'Equipo, operador, resultados',
           icono: Icons.radio_button_checked_rounded,
-          completada: radiografica.tieneContenido, color: Colors.indigo,
+          completada: radiografica.estaCompleto, color: Colors.indigo,
           onTap: () async {
             final r = await Navigator.push<InspeccionRadiografica>(context,
               MaterialPageRoute(builder: (_) => InspeccionRadiograficaScreen(hojaId: hojaId, datosIniciales: radiografica)));
@@ -70,7 +70,7 @@ class SeccionesHojaWidget extends StatelessWidget {
           numero: '2', titulo: 'Inspección de Fabricación',
           subtitulo: 'Materiales, visual, dimensional, soldaduras',
           icono: Icons.precision_manufacturing_rounded,
-          completada: fabricacion.tieneContenido, color: Colors.deepPurple,
+          completada: fabricacion.estaCompleto, color: Colors.deepPurple,
           onTap: () async {
             final r = await Navigator.push<InspeccionFabricacion>(context,
               MaterialPageRoute(builder: (_) => InspeccionFabricacionScreen(hojaId: hojaId, datosIniciales: fabricacion)));
@@ -84,7 +84,7 @@ class SeccionesHojaWidget extends StatelessWidget {
           numero: '3', titulo: 'Prueba de Hermeticidad',
           subtitulo: 'Tanque, serpentín, mamparos',
           icono: Icons.water_drop_rounded,
-          completada: hermeticidad.tieneContenido, color: Colors.blue,
+          completada: hermeticidad.estaCompleto, color: Colors.blue,
           onTap: () async {
             final r = await Navigator.push<PruebaHermeticidad>(context,
               MaterialPageRoute(builder: (_) => PruebaHermeticidadScreen(hojaId: hojaId, datosIniciales: hermeticidad)));
@@ -98,7 +98,7 @@ class SeccionesHojaWidget extends StatelessWidget {
           numero: '4', titulo: 'Recubrimiento / Revestimiento',
           subtitulo: 'General, espesores, porosidad',
           icono: Icons.layers_rounded,
-          completada: recubrimiento.tieneContenido, color: Colors.teal,
+          completada: recubrimiento.estaCompleto, color: Colors.teal,
           onTap: () async {
             final r = await Navigator.push<InspeccionRecubrimiento>(context,
               MaterialPageRoute(builder: (_) => InspeccionRecubrimientoScreen(hojaId: hojaId, datosIniciales: recubrimiento)));
@@ -112,7 +112,7 @@ class SeccionesHojaWidget extends StatelessWidget {
           numero: '5', titulo: 'Verificación Accesorios',
           subtitulo: 'Presión y vacío esp. interst.',
           icono: Icons.build_rounded,
-          completada: accesorios.tieneContenido, color: Colors.orange,
+          completada: accesorios.estaCompleto, color: Colors.orange,
           onTap: () async {
             final r = await Navigator.push<VerificacionAccesorios>(context,
               MaterialPageRoute(builder: (_) => VerificacionAccesoriosScreen(hojaId: hojaId, datosIniciales: accesorios)));
@@ -126,7 +126,7 @@ class SeccionesHojaWidget extends StatelessWidget {
           numero: '6', titulo: 'Placa de Identificación',
           subtitulo: 'Ubicación, cuño, certificado',
           icono: Icons.badge_rounded,
-          completada: placa.tieneContenido, color: Colors.brown,
+          completada: placa.estaCompleto, color: Colors.brown,
           onTap: () async {
             final r = await Navigator.push<PlacaIdentificacion>(context,
               MaterialPageRoute(builder: (_) => PlacaIdentificacionScreen(hojaId: hojaId, datosIniciales: placa)));
