@@ -102,9 +102,13 @@ class CampoHora extends StatelessWidget {
       helpText: 'Selecciona la hora',
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(primary: Color(0xFF6C63FF)),
+          colorScheme: const ColorScheme.light(primary: Color(0xFF60A66B)),
         ),
-        child: child!,
+        // Forzar formato 24 horas (sin AM/PM), estándar en documentos técnicos
+        child: MediaQuery(
+          data: MediaQuery.of(ctx).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        ),
       ),
     );
     if (elegida != null) {
@@ -139,7 +143,7 @@ class CampoHora extends StatelessWidget {
               filled: true,
               fillColor: const Color(0xFFF9FAFB),
               suffixIcon: value.text.isEmpty
-                  ? const Icon(Icons.access_time_rounded, size: 16, color: Color(0xFF6C63FF))
+                  ? const Icon(Icons.access_time_rounded, size: 16, color: Color(0xFF60A66B))
                   : GestureDetector(
                       onTap: () {
                         controller.clear();
@@ -155,7 +159,7 @@ class CampoHora extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.grey.shade200)),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2)),
+                  borderSide: const BorderSide(color: Color(0xFF60A66B), width: 2)),
             ),
           ),
         ),
@@ -208,7 +212,7 @@ class CampoResultado extends StatelessWidget {
                     borderSide: BorderSide(color: Colors.grey.shade200)),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2)),
+                    borderSide: const BorderSide(color: Color(0xFF60A66B), width: 2)),
               ),
               items: _opciones.map((o) {
                 final esOk = o == 'OK';

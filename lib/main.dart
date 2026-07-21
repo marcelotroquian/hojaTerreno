@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       title: 'Auth App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6C63FF)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF60A66B)),
         useMaterial3: true,
       ),
       home: const AuthGate(),
@@ -83,11 +83,11 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.lock_rounded, size: 64, color: Color(0xFF6C63FF)),
+            Icon(Icons.lock_rounded, size: 64, color: Color(0xFF60A66B)),
             SizedBox(height: 24),
             SizedBox(
               width: 28, height: 28,
-              child: CircularProgressIndicator(color: Color(0xFF6C63FF), strokeWidth: 3),
+              child: CircularProgressIndicator(color: Color(0xFF60A66B), strokeWidth: 3),
             ),
           ],
         ),

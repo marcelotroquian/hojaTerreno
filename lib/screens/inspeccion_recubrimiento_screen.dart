@@ -178,7 +178,7 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
             child: Container(height: 1, color: Colors.grey.shade100)),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF60A66B)))
           : ListView(
               padding: const EdgeInsets.all(20),
               children: [
@@ -266,9 +266,9 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6C63FF).withOpacity(0.05),
+                    color: const Color(0xFF60A66B).withOpacity(0.05),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.15)),
+                    border: Border.all(color: const Color(0xFF60A66B).withOpacity(0.15)),
                   ),
                   child: Row(children: [
                     Expanded(flex: 2, child: _campo(_inspectorCtrl, 'Inspector')),
@@ -301,7 +301,7 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
             filled: true, fillColor: const Color(0xFFF9FAFB),
             border:        OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade200)),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade200)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF60A66B), width: 2)),
           ),
         ),
       ],
@@ -313,7 +313,7 @@ class _InspeccionRecubrimientoScreenState extends State<InspeccionRecubrimientoS
     child: ElevatedButton(
       onPressed: _isSaving ? null : _guardar,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF6C63FF), foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF60A66B), foregroundColor: Colors.white,
         elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: _isSaving
@@ -334,11 +334,11 @@ class _SubSeccion extends StatelessWidget {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-          color: const Color(0xFF6C63FF).withOpacity(0.1),
+          color: const Color(0xFF60A66B).withOpacity(0.1),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.3)),
+          border: Border.all(color: const Color(0xFF60A66B).withOpacity(0.3)),
         ),
-        child: Text(numero, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF6C63FF))),
+        child: Text(numero, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF60A66B))),
       ),
       const SizedBox(width: 8),
       Text(titulo, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF111827))),

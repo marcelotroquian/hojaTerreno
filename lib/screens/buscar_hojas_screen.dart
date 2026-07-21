@@ -63,7 +63,7 @@ class _BuscarHojasScreenState extends State<BuscarHojasScreen> {
                     onSubmitted: (_) => _buscar(),
                     decoration: InputDecoration(
                       hintText: 'Número de tanque, serie o cliente...',
-                      prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF6C63FF)),
+                      prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF60A66B)),
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -77,7 +77,7 @@ class _BuscarHojasScreenState extends State<BuscarHojasScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
+                        borderSide: const BorderSide(color: Color(0xFF60A66B), width: 2),
                       ),
                     ),
                   ),
@@ -88,7 +88,7 @@ class _BuscarHojasScreenState extends State<BuscarHojasScreen> {
                   child: ElevatedButton(
                     onPressed: _buscando ? null : _buscar,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6C63FF),
+                      backgroundColor: const Color(0xFF60A66B),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -103,7 +103,7 @@ class _BuscarHojasScreenState extends State<BuscarHojasScreen> {
           // Resultados
           Expanded(
             child: _buscando
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFF60A66B)))
                 : !_yaBusco
                     ? _estadoInicial()
                     : _resultados.isEmpty

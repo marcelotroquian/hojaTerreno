@@ -14,7 +14,7 @@ class SeccionHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A2E),
+        color: const Color(0xFF2D3540),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(children: [
@@ -22,7 +22,7 @@ class SeccionHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFF6C63FF),
+              color: const Color(0xFF60A66B),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(numero,

@@ -85,7 +85,7 @@ class _HojasListScreenState extends State<HojasListScreen> {
             builder: (_) => const HojaTerrenoFormScreen(),
           ),
         ),
-        backgroundColor: const Color(0xFF6C63FF),
+        backgroundColor: const Color(0xFF60A66B),
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
         label: const Text('Nueva hoja', style: TextStyle(fontWeight: FontWeight.w600)),
@@ -97,7 +97,7 @@ class _HojasListScreenState extends State<HojasListScreen> {
           // Cargando
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF6C63FF)),
+              child: CircularProgressIndicator(color: Color(0xFF60A66B)),
             );
           }
 
@@ -181,7 +181,7 @@ class _HojaCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: esMia
-              ? const Color(0xFF6C63FF).withOpacity(0.3)
+              ? const Color(0xFF60A66B).withOpacity(0.3)
               : Colors.grey.shade100,
         ),
         boxShadow: [
@@ -288,7 +288,7 @@ class _HojaCard extends StatelessWidget {
                     child: Icon(
                       Icons.picture_as_pdf_rounded,
                       size: 18,
-                      color: const Color(0xFF6C63FF),
+                      color: const Color(0xFF60A66B),
                     ),
                   ),
                   // Solo el creador ve el botón eliminar

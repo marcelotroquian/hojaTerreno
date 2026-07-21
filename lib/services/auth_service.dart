@@ -39,7 +39,7 @@ class AuthService {
       // 4. Enviar email de verificación
       await credential.user?.sendEmailVerification();
 
-      return null; // null = éxito ✅
+      return null; // null = éxito
 
     } on FirebaseAuthException catch (e) {
       return _traducirError(e.code);

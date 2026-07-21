@@ -96,7 +96,7 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
       backgroundColor: const Color(0xFF525659),
       appBar: AppBar(
         title: const Text('Vista previa PDF', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        backgroundColor: const Color(0xFF313645),
+        backgroundColor: const Color(0xFF60A66B),
         foregroundColor: Colors.white,
       ),
       body: _error != null
@@ -132,7 +132,7 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
                   canDebug: false,
                   pdfFileName: nombreArchivo,
                   actionBarTheme: const PdfActionBarTheme(
-                    backgroundColor: Color(0xFF313645),
+                    backgroundColor: Color(0xFF60A66B),
                     iconColor: Colors.white,
                   ),
                 ),

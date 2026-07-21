@@ -162,12 +162,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 20),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF6C63FF)),
+              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF60A66B)),
               title: const Text('Galería de fotos'),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
             ListTile(
-              leading: const Icon(Icons.camera_alt_rounded, color: Color(0xFF6C63FF)),
+              leading: const Icon(Icons.camera_alt_rounded, color: Color(0xFF60A66B)),
               title: const Text('Tomar foto'),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
@@ -204,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF6C63FF)),
+              child: CircularProgressIndicator(color: Color(0xFF60A66B)),
             )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -223,7 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: const Color(0xFF6C63FF).withOpacity(0.3),
+                              color: const Color(0xFF60A66B).withOpacity(0.3),
                               width: 3,
                             ),
                           ),
@@ -238,7 +238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: const BoxDecoration(
-                              color: Color(0xFF6C63FF),
+                              color: Color(0xFF60A66B),
                               shape: BoxShape.circle,
                             ),
                             child: _isUploadingPhoto
@@ -319,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: Color(0xFF6C63FF),
+                                color: Color(0xFF60A66B),
                                 width: 2,
                               ),
                             ),
@@ -366,8 +366,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         imageUrl: photoUrl,
         fit: BoxFit.cover,
         placeholder: (context, url) => Container(
-          color: const Color(0xFF6C63FF).withOpacity(0.1),
-          child: const Icon(Icons.person_rounded, color: Color(0xFF6C63FF), size: 50),
+          color: const Color(0xFF60A66B).withOpacity(0.1),
+          child: const Icon(Icons.person_rounded, color: Color(0xFF60A66B), size: 50),
         ),
         errorWidget: (context, url, error) => _defaultAvatar(),
       );
@@ -378,8 +378,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _defaultAvatar() {
     return Container(
-      color: const Color(0xFF6C63FF).withOpacity(0.1),
-      child: const Icon(Icons.person_rounded, color: Color(0xFF6C63FF), size: 50),
+      color: const Color(0xFF60A66B).withOpacity(0.1),
+      child: const Icon(Icons.person_rounded, color: Color(0xFF60A66B), size: 50),
     );
   }
 

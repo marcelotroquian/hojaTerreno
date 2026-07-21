@@ -262,7 +262,7 @@ class _CroquisScreenState extends State<CroquisScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, ctrl.text),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6C63FF), foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF60A66B), foregroundColor: Colors.white),
             child: const Text('Agregar'),
           ),
         ],
@@ -285,9 +285,9 @@ class _CroquisScreenState extends State<CroquisScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: const Color(0xFF2D3540),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF16213E),
+        backgroundColor: const Color(0xFF2D3540),
         foregroundColor: Colors.white,
         // En modo local, al hacer back también devolvemos los elementos
         leading: IconButton(
@@ -327,7 +327,7 @@ class _CroquisScreenState extends State<CroquisScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF60A66B)))
           : Column(
               children: [
                 // ── Barra de herramientas ──────────────────────────────────
@@ -472,7 +472,7 @@ class _ToolBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF16213E),
+      color: const Color(0xFF2D3540),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Column(
         children: [
@@ -533,9 +533,9 @@ class _ToolBtn extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF6C63FF) : Colors.transparent,
+          color: isActive ? const Color(0xFF60A66B) : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isActive ? const Color(0xFF6C63FF) : Colors.white24),
+          border: Border.all(color: isActive ? const Color(0xFF60A66B) : Colors.white24),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -566,7 +566,7 @@ class _CabeceraCroquis extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF16213E),
+      color: const Color(0xFF2D3540),
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,7 +632,7 @@ class _CabeceraCroquis extends StatelessWidget {
               suffixStyle: const TextStyle(fontSize: 10, color: Colors.white38),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: Colors.white.withOpacity(0.15))),
               enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: Colors.white.withOpacity(0.15))),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 1.5)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF60A66B), width: 1.5)),
             ),
           ),
         ),
@@ -658,7 +658,7 @@ class _PieCroquis extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF16213E),
+      color: const Color(0xFF2D3540),
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

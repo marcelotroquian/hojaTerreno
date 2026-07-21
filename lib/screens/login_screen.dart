@@ -91,19 +91,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
 
                 // Título
-
-
-                SizedBox(
-                  width: double.infinity,
-                  child: Text(
-                    'Ingresa tus credenciales para continuar',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade500,
-                    ),
+                const Text(
+                  'Bienvenido de\nvuelta',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF111827),
+                    height: 1.2,
                   ),
                 ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  'Ingresa tus credenciales para continuar',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+
                 const SizedBox(height: 40),
 
                 // Campo de correo
@@ -157,15 +164,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '',
+                      '¿No tienes cuenta? ',
                       style: TextStyle(color: Colors.grey.shade500),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pushNamed(context, '/register'),
                       child: const Text(
-                        'Registro',
+                        'Regístrate',
                         style: TextStyle(
-                          color: Color(0xff3b8c47),
+                          color: Color(0xFF60A66B),
                           fontWeight: FontWeight.w600,
                         ),
                       ),

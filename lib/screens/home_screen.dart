@@ -96,7 +96,7 @@ class HomeScreen extends StatelessWidget {
                     icon: Icons.description_rounded,
                     title: 'Hojas de Terreno',
                     subtitle: 'Crear, ver y editar hojas de inspección',
-                    color: const Color(0xFF6C63FF),
+                    color: const Color(0xFF60A66B),
                     onTap: () => Navigator.pushNamed(context, '/hojas'),
                   ),
 
@@ -107,7 +107,7 @@ class HomeScreen extends StatelessWidget {
                     icon: Icons.manage_search_rounded,
                     title: 'Buscar Hojas',
                     subtitle: 'Buscar por código HDT, tanque o cliente',
-                    color: const Color(0xFF00897B),
+                    color: const Color(0xFF3C5949),
                     onTap: () => Navigator.pushNamed(context, '/buscar'),
                   ),
 
@@ -136,7 +136,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _defaultAvatar() {
-    return Container(color: const Color(0xFF6C63FF).withOpacity(0.1), child: const Icon(Icons.person_rounded, color: Color(0xFF6C63FF), size: 24));
+    return Container(color: const Color(0xFF60A66B).withOpacity(0.1), child: const Icon(Icons.person_rounded, color: Color(0xFF60A66B), size: 24));
   }
 
   Widget _buildMenuItem({required IconData icon, required String label, required VoidCallback onTap}) {
@@ -145,8 +145,8 @@ class HomeScreen extends StatelessWidget {
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: const Color(0xFF6C63FF).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-          child: Icon(icon, color: const Color(0xFF6C63FF), size: 18),
+          decoration: BoxDecoration(color: const Color(0xFF60A66B).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+          child: Icon(icon, color: const Color(0xFF60A66B), size: 18),
         ),
         title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
         trailing: Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),

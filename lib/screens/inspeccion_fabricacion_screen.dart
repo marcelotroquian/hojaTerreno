@@ -225,7 +225,7 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
             child: Container(height: 1, color: Colors.grey.shade100)),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF60A66B)))
           : ListView(
               padding: const EdgeInsets.all(20),
               children: [
@@ -421,9 +421,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6C63FF).withOpacity(0.05),
+                    color: const Color(0xFF60A66B).withOpacity(0.05),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.15)),
+                    border: Border.all(color: const Color(0xFF60A66B).withOpacity(0.15)),
                   ),
                   child: Row(children: [
                     Expanded(child: _campo(_inspectorCtrl, 'Inspector')),
@@ -450,9 +450,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: value ? const Color(0xFF6C63FF).withOpacity(0.1) : const Color(0xFFF9FAFB),
+          color: value ? const Color(0xFF60A66B).withOpacity(0.1) : const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: value ? const Color(0xFF6C63FF) : Colors.grey.shade200, width: value ? 1.5 : 1),
+          border: Border.all(color: value ? const Color(0xFF60A66B) : Colors.grey.shade200, width: value ? 1.5 : 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -460,15 +460,15 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
             Container(
               width: 18, height: 18,
               decoration: BoxDecoration(
-                color: value ? const Color(0xFF6C63FF) : Colors.white,
+                color: value ? const Color(0xFF60A66B) : Colors.white,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: value ? const Color(0xFF6C63FF) : Colors.grey.shade400, width: 2),
+                border: Border.all(color: value ? const Color(0xFF60A66B) : Colors.grey.shade400, width: 2),
               ),
               child: value ? const Icon(Icons.check_rounded, size: 12, color: Colors.white) : null,
             ),
             const SizedBox(width: 8),
             Text(label, style: TextStyle(fontSize: 12, fontWeight: value ? FontWeight.w600 : FontWeight.normal,
-                color: value ? const Color(0xFF6C63FF) : const Color(0xFF374151))),
+                color: value ? const Color(0xFF60A66B) : const Color(0xFF374151))),
           ],
         ),
       ),
@@ -483,9 +483,9 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF6C63FF).withOpacity(0.1) : const Color(0xFFF9FAFB),
+          color: isSelected ? const Color(0xFF60A66B).withOpacity(0.1) : const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: isSelected ? const Color(0xFF6C63FF) : Colors.grey.shade200, width: isSelected ? 1.5 : 1),
+          border: Border.all(color: isSelected ? const Color(0xFF60A66B) : Colors.grey.shade200, width: isSelected ? 1.5 : 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -493,15 +493,15 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
             Container(
               width: 18, height: 18,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF6C63FF) : Colors.white,
+                color: isSelected ? const Color(0xFF60A66B) : Colors.white,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: isSelected ? const Color(0xFF6C63FF) : Colors.grey.shade400, width: 2),
+                border: Border.all(color: isSelected ? const Color(0xFF60A66B) : Colors.grey.shade400, width: 2),
               ),
               child: isSelected ? const Icon(Icons.check_rounded, size: 12, color: Colors.white) : null,
             ),
             const SizedBox(width: 8),
             Text(label, style: TextStyle(fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? const Color(0xFF6C63FF) : const Color(0xFF374151))),
+                color: isSelected ? const Color(0xFF60A66B) : const Color(0xFF374151))),
           ],
         ),
       ),
@@ -542,7 +542,7 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
     filled: true, fillColor: const Color(0xFFF9FAFB),
     border:        OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade200)),
     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade200)),
-    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2)),
+    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF60A66B), width: 2)),
   );
 
   Widget _botonGuardar() => SizedBox(
@@ -550,7 +550,7 @@ class _InspeccionFabricacionScreenState extends State<InspeccionFabricacionScree
     child: ElevatedButton(
       onPressed: _isSaving ? null : _guardar,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF6C63FF), foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF60A66B), foregroundColor: Colors.white,
         elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: _isSaving
@@ -571,11 +571,11 @@ class _SubSeccion extends StatelessWidget {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-          color: const Color(0xFF6C63FF).withOpacity(0.1),
+          color: const Color(0xFF60A66B).withOpacity(0.1),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.3)),
+          border: Border.all(color: const Color(0xFF60A66B).withOpacity(0.3)),
         ),
-        child: Text(numero, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF6C63FF))),
+        child: Text(numero, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF60A66B))),
       ),
       const SizedBox(width: 8),
       Text(titulo, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF111827))),

@@ -71,7 +71,7 @@ class ProfileService {
         'name': name.trim(),
         'bio': bio.trim(),
       });
-      return null; // null = éxito ✅
+      return null; // null = éxito
     } catch (e) {
       return 'Error al actualizar el perfil. Intenta de nuevo.';
     }
@@ -101,7 +101,7 @@ class ProfileService {
       // Guardar URL en el documento de Firestore
       await _usersCol.doc(uid).update({'photoUrl': downloadUrl});
 
-      return null; // null = éxito ✅
+      return null; // null = éxito
     } catch (e) {
       return 'Error al subir la foto: $e';
     }

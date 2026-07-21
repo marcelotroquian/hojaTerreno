@@ -97,7 +97,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 32),
 
-
+                // Ícono decorativo
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF60A66B).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.person_add_rounded,
+                    color: Color(0xFF60A66B),
+                    size: 32,
+                  ),
+                ),
 
                 const SizedBox(height: 24),
 
@@ -215,7 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: const Text(
                         'Inicia sesión',
                         style: TextStyle(
-                          color: Color(0xFF3B8C47),
+                          color: Color(0xFF60A66B),
                           fontWeight: FontWeight.w600,
                         ),
                       ),

@@ -5,7 +5,6 @@
 //   - Sin hojaId (creación): guarda los bytes en memoria y los devuelve al padre
 
 import 'dart:typed_data';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/fotos_service.dart';
@@ -146,12 +145,12 @@ class _FotosHojaWidgetState extends State<FotosHojaWidget> {
             const Text('Agregar foto', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF6C63FF)),
+              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF60A66B)),
               title: const Text('Elegir de la galería'),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
             ListTile(
-              leading: const Icon(Icons.camera_alt_rounded, color: Color(0xFF6C63FF)),
+              leading: const Icon(Icons.camera_alt_rounded, color: Color(0xFF60A66B)),
               title: const Text('Tomar una foto'),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
@@ -267,7 +266,7 @@ class _SlotFoto extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: subiendo
-              ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF), strokeWidth: 2))
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFF60A66B), strokeWidth: 2))
               : tieneContenido
                   ? _buildImagenOcupada()
                   : _buildSlotVacio(),
@@ -282,14 +281,17 @@ class _SlotFoto extends StatelessWidget {
       children: [
         bytes != null
             ? Image.memory(bytes!, fit: BoxFit.cover)
-            : CachedNetworkImage(
-                imageUrl: url!,
+            : Image.network(
+                url!,
                 fit: BoxFit.cover,
-                placeholder: (c, u) => Container(
-                  color: Colors.grey.shade100,
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                errorWidget: (c, u, e) => Container(
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return Container(
+                    color: Colors.grey.shade100,
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  );
+                },
+                errorBuilder: (context, error, stack) => Container(
                   color: Colors.grey.shade100,
                   child: const Icon(Icons.broken_image_rounded, color: Colors.grey),
                 ),
@@ -361,11 +363,22 @@ class _VisorFoto extends StatelessWidget {
           minScale: 0.5, maxScale: 4.0,
           child: bytes != null
               ? Image.memory(bytes!, fit: BoxFit.contain)
-              : CachedNetworkImage(
-                  imageUrl: url!,
+              : Image.network(
+                  url!,
                   fit: BoxFit.contain,
-                  placeholder: (c, u) => const CircularProgressIndicator(color: Colors.white),
-                  errorWidget: (c, u, e) => const Icon(Icons.broken_image_rounded, color: Colors.white, size: 64),
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return const CircularProgressIndicator(color: Colors.white);
+                  },
+                  errorBuilder: (context, error, stack) => Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.broken_image_rounded, color: Colors.white, size: 64),
+                      const SizedBox(height: 12),
+                      Text('No se pudo cargar la imagen',
+                          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                    ],
+                  ),
                 ),
         ),
       ),

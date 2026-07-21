@@ -82,7 +82,7 @@ class FotosService {
       urls[indice] = url;
       await _hojaDoc(hojaId).update({'fotos': urls});
 
-      return null; // ✅ éxito
+      return null; // éxito
     } catch (e) {
       return 'Error al subir la foto: $e';
     }

@@ -80,7 +80,7 @@ class _BorradoresScreenState extends State<BorradoresScreen> {
         ),
       ),
       body: _cargando
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF60A66B)))
           : _borradores.isEmpty
               ? _vacio()
               : ListView.builder(

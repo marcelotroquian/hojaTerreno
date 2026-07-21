@@ -40,6 +40,12 @@ class HojaTerrenoFormScreen extends StatefulWidget {
 class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  // Control del botón flotante (FAB): se muestra cuando el botón grande de
+  // abajo NO está visible, para poder crear la hoja sin bajar hasta el final.
+  final ScrollController _scrollCtrl = ScrollController();
+  final GlobalKey _botonCrearKey = GlobalKey();
+  bool _mostrarFab = false;
+
   final _tanqueCtrl        = TextEditingController();
   final _serieCtrl         = TextEditingController();
   final _certificadoCtrl   = TextEditingController();
@@ -87,6 +93,8 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
   @override
   void initState() {
     super.initState();
+    // Listener del scroll para mostrar/ocultar el FAB
+    _scrollCtrl.addListener(_evaluarFab);
     if (widget.esEdicion) {
       _cargarHoja();
     } else {
@@ -99,6 +107,29 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
       }
       // Autoguardado al escribir en cualquier campo de texto
       _engancharAutoguardado();
+    }
+    // Evaluar el FAB una vez que se dibuje el formulario
+    WidgetsBinding.instance.addPostFrameCallback((_) => _evaluarFab());
+  }
+
+  // Decide si mostrar el FAB: se muestra cuando el botón grande de "Crear"
+  // NO está visible en pantalla (el usuario no ha bajado hasta el final).
+  void _evaluarFab() {
+    final ctx = _botonCrearKey.currentContext;
+    if (ctx == null) {
+      // El botón aún no se dibujó (está muy abajo) → mostramos FAB
+      if (!_mostrarFab && mounted) setState(() => _mostrarFab = true);
+      return;
+    }
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    // Posición del botón respecto a la pantalla
+    final posicion = box.localToGlobal(Offset.zero).dy;
+    final altoPantalla = MediaQuery.of(context).size.height;
+    // Si el botón está por debajo del borde visible, mostramos el FAB
+    final visible = posicion < altoPantalla - 40;
+    if (visible == _mostrarFab && mounted) {
+      setState(() => _mostrarFab = !visible);
     }
   }
 
@@ -227,6 +258,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _scrollCtrl.dispose();
     _tanqueCtrl.dispose(); _serieCtrl.dispose(); _certificadoCtrl.dispose();
     _patenteCtrl.dispose(); _planoCtrl.dispose(); _clienteCtrl.dispose();
     _capacidadCtrl.dispose(); _normaCtrl.dispose(); _protocoloCtrl.dispose();
@@ -496,11 +528,34 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
             child: Container(height: 1, color: Colors.grey.shade100),
           ),
         ),
+        // FAB tipo burbuja: aparece cuando el botón grande de abajo no se ve,
+        // para crear/guardar la hoja sin bajar hasta el final.
+        floatingActionButton: (_isLoading || !_mostrarFab)
+            ? null
+            : AnimatedOpacity(
+                opacity: _mostrarFab ? 1 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: FloatingActionButton.extended(
+                  onPressed: _isSaving ? null : _guardar,
+                  backgroundColor: const Color(0xFF60A66B),
+                  foregroundColor: Colors.white,
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  icon: _isSaving
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                      : const Icon(Icons.add_rounded),
+                  label: Text(
+                    widget.esEdicion ? 'Guardar' : 'Crear',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
         body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF60A66B)))
           : Form(
               key: _formKey,
               child: ListView(
+                controller: _scrollCtrl,
                 padding: const EdgeInsets.all(20),
                 children: [
 
@@ -606,10 +661,10 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                           duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
-                            color: selected ? const Color(0xFF6C63FF).withOpacity(0.1) : const Color(0xFFF9FAFB),
+                            color: selected ? const Color(0xFF60A66B).withOpacity(0.1) : const Color(0xFFF9FAFB),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: selected ? const Color(0xFF6C63FF) : Colors.grey.shade200,
+                              color: selected ? const Color(0xFF60A66B) : Colors.grey.shade200,
                               width: selected ? 1.5 : 1,
                             ),
                           ),
@@ -619,10 +674,10 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                               Container(
                                 width: 18, height: 18,
                                 decoration: BoxDecoration(
-                                  color: selected ? const Color(0xFF6C63FF) : Colors.white,
+                                  color: selected ? const Color(0xFF60A66B) : Colors.white,
                                   borderRadius: BorderRadius.circular(4),
                                   border: Border.all(
-                                    color: selected ? const Color(0xFF6C63FF) : Colors.grey.shade400,
+                                    color: selected ? const Color(0xFF60A66B) : Colors.grey.shade400,
                                     width: 2,
                                   ),
                                 ),
@@ -634,7 +689,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                                  color: selected ? const Color(0xFF6C63FF) : const Color(0xFF374151),
+                                  color: selected ? const Color(0xFF60A66B) : const Color(0xFF374151),
                                 ),
                               ),
                             ],
@@ -698,7 +753,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: _elementosCroquis.isNotEmpty
-                              ? [const Color(0xFF6C63FF), const Color(0xFF9C95FF)]
+                              ? [const Color(0xFF60A66B), const Color(0xFF60A66B)]
                               : [Colors.grey.shade400, Colors.grey.shade500],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -745,13 +800,14 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
 
                   // ── Botón guardar ────────────────────────────────────────
                   SizedBox(
+                    key: _botonCrearKey,
                     height: 52,
                     child: ElevatedButton(
                       onPressed: _isSaving ? null : _guardar,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6C63FF),
+                        backgroundColor: const Color(0xFF60A66B),
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: const Color(0xFF6C63FF).withOpacity(0.5),
+                        disabledBackgroundColor: const Color(0xFF60A66B).withOpacity(0.5),
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
@@ -788,7 +844,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
             text: TextSpan(
               text: label,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151)),
-              children: required ? const [TextSpan(text: ' *', style: TextStyle(color: Color(0xFF6C63FF)))] : [],
+              children: required ? const [TextSpan(text: ' *', style: TextStyle(color: Color(0xFF60A66B)))] : [],
             ),
           ),
           const SizedBox(height: 6),
@@ -802,7 +858,7 @@ class _HojaTerrenoFormScreenState extends State<HojaTerrenoFormScreen> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               border:        OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade200)),
               enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade200)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF60A66B), width: 2)),
               errorBorder:   OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.red)),
             ),
           ),
@@ -829,8 +885,8 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(color: const Color(0xFF6C63FF).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-          child: Icon(icon, size: 16, color: const Color(0xFF6C63FF)),
+          decoration: BoxDecoration(color: const Color(0xFF60A66B).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+          child: Icon(icon, size: 16, color: const Color(0xFF60A66B)),
         ),
         const SizedBox(width: 8),
         Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
@@ -866,8 +922,8 @@ class _TipoInspeccionTile extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5),
-                color: isSelected ? const Color(0xFF6C63FF) : Colors.white,
-                border: Border.all(color: isSelected ? const Color(0xFF6C63FF) : Colors.grey.shade300, width: 2),
+                color: isSelected ? const Color(0xFF60A66B) : Colors.white,
+                border: Border.all(color: isSelected ? const Color(0xFF60A66B) : Colors.grey.shade300, width: 2),
               ),
               child: isSelected ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
             ),
@@ -875,7 +931,7 @@ class _TipoInspeccionTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: isSelected ? const Color(0xFF6C63FF) : const Color(0xFF374151))),
+                Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: isSelected ? const Color(0xFF60A66B) : const Color(0xFF374151))),
                 Text(descripcion, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
               ],
             ),

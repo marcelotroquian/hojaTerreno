@@ -27,7 +27,7 @@ class CroquisService {
         if (datos != null) 'datos': datos.toMap(),
         'actualizadoEn': DateTime.now().millisecondsSinceEpoch,
       });
-      return null; // null = éxito ✅
+      return null; // null = éxito
     } catch (e) {
       // Mostramos el detalle real para diagnosticar
       return 'Error al guardar el croquis: $e';
